@@ -36,12 +36,12 @@
   "scripts": {
     "build": "tsup",
     "build:local": "npm run lint:fix && tsup && npm run pack",
-    "postinstall": "husky",
     "lint": "npm run npm:lint && eslint | snazzy",
     "lint:fix": "npm run npm:lint && eslint --fix | snazzy",
     "lint:package": "npx sort-package-json",
     "npm:lint": "npmPkgJsonLint .",
     "pack": "npm pack",
+    "prepare": "husky install",
     "update": "npx npm-check-updates -u && npm install"
   },
   "dependencies": {
