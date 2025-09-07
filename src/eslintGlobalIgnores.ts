@@ -1,4 +1,6 @@
-export const globalIgnores = {
+import { Linter } from "eslint";
+
+export const eslintGlobalIgnores: Linter.Config = {
   ignores: [
     "./idea",
     ".node_modules/*",
@@ -9,4 +11,4 @@ export const globalIgnores = {
   ],
 };
 
-export default globalIgnores;
+export default eslintGlobalIgnores;

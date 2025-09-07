@@ -1,7 +1,8 @@
+import { Linter } from "eslint";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import react from "eslint-plugin-react";
 
-export const eslintReactA11y = {
+export const eslintReactA11y: Linter.Config = {
   plugins: {
     react,
     "jsx-a11y": jsxA11y,
