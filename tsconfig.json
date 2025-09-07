@@ -1,0 +1,24 @@
+{
+  "display": "Default",
+  "compilerOptions": {
+    //    @ commented out
+    //    "useDefineForClassFields": true,
+    "esModuleInterop": true,
+    //    "allowSyntheticDefaultImports": true,
+    "target": "ESNext", // @note changed to ES2017 from ESNext
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true, // @note changed to true
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": false, // @note added
+    "baseUrl": ".",
+  },
+  "include": ["src/**/*"]
+}
