@@ -2,6 +2,10 @@ import { Linter } from "eslint";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import react from "eslint-plugin-react";
 
+/**
+ * ESLing for React/A11y
+ * @since 1.0.0
+ */
 export const eslintReactA11y: Linter.Config = {
   plugins: {
     react,

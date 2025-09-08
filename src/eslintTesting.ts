@@ -1,5 +1,9 @@
 import testingLibrary from "eslint-plugin-testing-library";
 
+/**
+ * ESLing for Testing Library
+ * @since 1.0.0
+ */
 export const eslintTesting = {
   files: [
     "**/__tests__/**/*.[jt]s?(x)",
