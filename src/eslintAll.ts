@@ -1,5 +1,8 @@
+// import storybook from "eslint-plugin-storybook";
+import { defineConfig } from "eslint/config";
+
+import eslintStorybook from "./eslintStorybook";
 import {
-  eslintGlobalIgnores,
   eslintPerfectionist,
   eslintReactA11y,
   eslintTesting,
@@ -10,20 +13,22 @@ import {
  * ESLint for All
  * @since 1.0.0
  */
-export const eslintAll = [
+export const eslintAll = defineConfig(
   {
-    ...eslintGlobalIgnores,
-  },
-  // ...eslintTypescript.recommended,
-  {
+    ...eslintTypescript,
     ...eslintReactA11y,
-  },
-  {
-    ...eslintTesting,
-  },
-  {
     ...eslintPerfectionist,
+    ...eslintTesting,
+    ...eslintStorybook,
   },
-];
-
-export default eslintAll;
+  {
+    ignores: [
+      "./idea/*",
+      "./node_modules/*",
+      "./dist/*",
+      "./lib/*",
+      "./.storybook/*",
+      "./storybook-static/*",
+    ],
+  },
+);

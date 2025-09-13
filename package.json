@@ -44,6 +44,16 @@
     "prepare": "husky",
     "update": "npx npm-check-updates -u && npm install"
   },
+  "dependencies": {
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-perfectionist": "^4.15.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-sort-class-members": "^1.21.0",
+    "eslint-plugin-storybook": "^9.1.5",
+    "eslint-plugin-testing-library": "^7.6.8",
+    "typescript-eslint": "^8.42.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
@@ -51,14 +61,6 @@
     "@types/eslint-plugin-jsx-a11y": "^6.10.0",
     "@types/node": "^24.3.1",
     "eslint": "^9.35.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-perfectionist": "^4.15.0",
-    "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-sort-class-members": "^1.21.0",
-    "eslint-plugin-storybook": "^9.1.5",
-    "eslint-plugin-tailwindcss": "^3.18.2",
-    "eslint-plugin-testing-library": "^7.6.8",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
     "npm": "^11.6.0",
@@ -66,19 +68,10 @@
     "npm-package-json-lint-config-default": "^8.0.1",
     "snazzy": "^9.0.0",
     "sort-package-json": "^3.4.0",
-    "tsup": "^8.5.0",
-    "typescript-eslint": "^8.42.0"
+    "tsup": "^8.5.0"
   },
   "peerDependencies": {
-    "eslint": "^9.35.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-perfectionist": "^4.15.0",
-    "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-sort-class-members": "^1.21.0",
-    "eslint-plugin-storybook": "^9.1.5",
-    "eslint-plugin-testing-library": "^7.6.8",
-    "typescript-eslint": "^8.42.0"
+    "eslint": "^9.35.0"
   },
   "packageManager": "npm@11.6.0"
 }

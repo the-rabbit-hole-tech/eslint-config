@@ -1,5 +1,4 @@
-export { default as eslintAll } from "./eslintAll";
-export { default as eslintGlobalIgnores } from "./eslintGlobalIgnores";
+export { eslintAll } from "./eslintAll";
 export { default as eslintPerfectionist } from "./eslintPerfectionist";
 export { default as eslintReactA11y } from "./eslintReactA11y";
 // export { default as eslintStorybook } from "./eslintStorybook";

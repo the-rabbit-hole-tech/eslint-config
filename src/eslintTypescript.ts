@@ -12,7 +12,7 @@ import tseslint from "typescript-eslint";
  * @since 1.0.0
  */
 export const eslintTypescript = {
-  ...tseslint.configs,
+  ...tseslint.configs.recommended,
 };
 
 export default eslintTypescript;
