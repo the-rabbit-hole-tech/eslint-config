@@ -13,16 +13,17 @@ import eslintTypescript from "./eslintTypescript";
  * @since 1.0.0
  **/
 export const globalIgnores = [
-  "./idea",
-  ".node_modules/*",
-  "./dist/*",
-  "./lib/*",
-  "./storybook-static/**/*",
-  "./.storybook/*",
+  "**/.idea/**",
+  "**/node_modules{,/**}",
+  "**/dist{,/**}",
+  "**/lib{,/**}",
+  "**/storybook-static{,/**}",
+  "**/.storybook{,/**}",
 ];
 
 /**
  * Default Config
+ * @description Used for all 'the rabbit hole' projects.
  * @since 1.0.0
  */
 export default defineConfig([

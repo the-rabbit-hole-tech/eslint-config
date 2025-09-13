@@ -35,11 +35,8 @@ pnpm add -D eslint @the-rabbit-hole/eslint-config
 In your `eslint.config.js` (or `eslint.config.mjs`):
 
 ```js
-import rabbitHoleConfig from "@the-rabbit-hole/eslint-config";
-
-export default [
-  ...rabbitHoleConfig,
-];
+import eslintConfig from "@the-rabbit-hole/eslint-config-plugin";
+export default eslintConfig;
 ```
 
 That’s it! 🚀

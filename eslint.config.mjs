@@ -5,12 +5,10 @@ import tseslint from "typescript-eslint";
 export default [
   {
     ignores: [
-      "./idea",
-      ".node_modules/*",
-      "./dist/*",
-      "./lib/*",
-      "./storybook-static/*",
-      "./.storybook/*",
+      "**/.idea/**",
+      "**/node_modules{,/**}",
+      "**/dist{,/**}",
+      "**/lib{,/**}",
     ],
   },
 
@@ -19,6 +17,7 @@ export default [
 
   // Prettier integration
   {
+    files: ["**/*.{js,mjs,cjs,ts,tsx,jsx,json}"],
     plugins: {
       prettier: prettierPlugin,
     },

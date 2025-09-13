@@ -7,7 +7,7 @@ import perfectionist from "eslint-plugin-perfectionist";
  **/
 export const eslintPerfectionist: Linter.Config = {
   ...perfectionist.configs["recommended-alphabetical"],
-  files: ["**/*.{js,mjs,cjs,ts}"],
+  files: ["**/*.{js,mjs,cjs,ts,tsx,jsx}"],
   // ...perfectionist.configs["recommended-line-length"],
   rules: {
     ...perfectionist.configs["recommended-alphabetical"].rules,

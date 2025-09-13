@@ -36,8 +36,8 @@
   "scripts": {
     "build": "tsup",
     "build:local": "npm run lint:fix && tsup && npm run pack",
-    "lint": "npm run npm:lint && eslint | snazzy",
-    "lint:fix": "npm run npm:lint && eslint --fix | snazzy",
+    "lint": "eslint | snazzy",
+    "lint:fix": "eslint --fix | snazzy",
     "lint:package": "npx sort-package-json",
     "npm:lint": "npmPkgJsonLint .",
     "pack": "npm pack",
