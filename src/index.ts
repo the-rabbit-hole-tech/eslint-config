@@ -1,6 +1,40 @@
-export { eslintAll } from "./eslintAll";
-export { default as eslintPerfectionist } from "./eslintPerfectionist";
-export { default as eslintReactA11y } from "./eslintReactA11y";
-// export { default as eslintStorybook } from "./eslintStorybook";
-export { default as eslintTesting } from "./eslintTesting";
-export { default as eslintTypescript } from "./eslintTypescript";
+import { defineConfig } from "eslint/config";
+
+import eslintA11y from "./eslintA11y";
+import eslintPerfectionist from "./eslintPerfectionist";
+import eslintPrettier from "./eslintPretter";
+import eslintReact from "./eslintReact";
+import eslintStorybook from "./eslintStorybook";
+import eslintTesting from "./eslintTesting";
+import eslintTypescript from "./eslintTypescript";
+
+export const globalIgnores = [
+  "./idea",
+  ".node_modules/*",
+  "./dist/*",
+  "./lib/*",
+  "./storybook-static/**/*",
+  "./.storybook/*",
+];
+
+/**
+ * Default Config
+ * @since 1.0.0
+ */
+export default defineConfig([
+  {
+    extends: [
+      eslintPerfectionist,
+      eslintTypescript.recommended,
+      eslintReact,
+      eslintA11y.recommended,
+      eslintTesting,
+      eslintPrettier,
+      eslintStorybook["flat/recommended"],
+    ],
+    ignores: globalIgnores,
+    rules: {
+      "react/react-in-jsx-scope": "off",
+    },
+  },
+]);
