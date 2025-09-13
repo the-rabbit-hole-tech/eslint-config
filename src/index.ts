@@ -8,6 +8,10 @@ import eslintStorybook from "./eslintStorybook";
 import eslintTesting from "./eslintTesting";
 import eslintTypescript from "./eslintTypescript";
 
+/**
+ * Global Ignores
+ * @since 1.0.0
+ **/
 export const globalIgnores = [
   "./idea",
   ".node_modules/*",
