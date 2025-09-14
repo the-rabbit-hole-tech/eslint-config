@@ -35,13 +35,13 @@
   ],
   "scripts": {
     "build": "tsup",
-    "build:local": "npm run lint:fix && tsup && npm run pack",
+    "build:local": "tsup && eslint --fix && npm run pack",
     "lint": "eslint | snazzy",
     "lint:fix": "eslint --fix | snazzy",
     "lint:npm": "npmPkgJsonLint .",
     "lint:package": "npx sort-package-json",
     "pack": "npm pack",
-    "prepare": "husky",
+    "prepare": "husky || true",
     "update": "npx npm-check-updates -u && npm install"
   },
   "dependencies": {
