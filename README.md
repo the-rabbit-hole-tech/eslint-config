@@ -43,13 +43,21 @@ That’s it! 🚀
 
 ## 🧩 What’s Included?
 
-* [@typescript-eslint](https://typescript-eslint.io) 📘
-* [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) ⚛️
-* [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y) ♿️
-* [eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library) 🧪
-* [eslint-plugin-storybook](https://github.com/storybookjs/eslint-plugin-storybook) 📖
-* [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier) 🎨
-* [eslint-plugin-perfectionist](https://perfectionist.dev) 🪄
+This ESLint config comes pre-bundled with a set of plugins and shareable configs tailored for modern TypeScript + React projects:
+
+* [@typescript-eslint](https://typescript-eslint.io) 📘 — TypeScript support and rules
+* [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) ⚛️ — React best practices
+* [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y) ♿️ — Accessibility rules for JSX
+* [eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library) 🧪 — Testing Library linting
+* [eslint-plugin-storybook](https://github.com/storybookjs/eslint-plugin-storybook) 📖 — Storybook linting
+* [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier) 🎨 — Run Prettier as an ESLint rule
+* [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier) ✂️ — Disables ESLint rules that conflict with Prettier
+* [eslint-plugin-perfectionist](https://perfectionist.dev) 🪄 — Enforces sorting and consistency
+* [eslint-plugin-sort-class-members](https://github.com/bryanrsmith/eslint-plugin-sort-class-members) 🧩 — Consistent class member ordering
+* [eslint-plugin-tailwindcss](https://github.com/francoismassart/eslint-plugin-tailwindcss) 🌬️ — Tailwind CSS class sorting and validation
+* [eslint-plugin-n](https://github.com/eslint-community/eslint-plugin-n) 📦 — Node.js best practices
+* [@eslint/js](https://eslint.org/docs/latest/use/configure/configuration-files-new) 🛠️ — Official ESLint base config
+
 
 ## 🤝 Contributing
 
