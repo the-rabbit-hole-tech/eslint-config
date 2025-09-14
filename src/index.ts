@@ -12,13 +12,15 @@ import eslintTypescript from "./eslintTypescript";
  * Global Ignores
  * @since 1.0.0
  **/
-export const globalIgnores = [
+export const globalIgnoresArray = [
   "**/.idea/**",
   "**/node_modules{,/**}",
   "**/dist{,/**}",
   "**/lib{,/**}",
+  "**/docs{,/**}",
   "**/storybook-static{,/**}",
   "**/.storybook{,/**}",
+  "**/.husky{,/**}",
 ];
 
 /**
@@ -27,6 +29,9 @@ export const globalIgnores = [
  * @since 1.0.0
  */
 export default defineConfig([
+  {
+    ignores: globalIgnoresArray,
+  },
   {
     extends: [
       eslintPerfectionist,
@@ -37,7 +42,6 @@ export default defineConfig([
       eslintPrettier,
       eslintStorybook["flat/recommended"],
     ],
-    ignores: globalIgnores,
     rules: {
       "react/react-in-jsx-scope": "off",
     },

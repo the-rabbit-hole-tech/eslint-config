@@ -9,6 +9,10 @@ export default [
       "**/node_modules{,/**}",
       "**/dist{,/**}",
       "**/lib{,/**}",
+      "**/docs{,/**}",
+      "**/storybook-static{,/**}",
+      "**/.storybook{,/**}",
+      "**/.husky{,/**}",
     ],
   },
 
@@ -17,7 +21,7 @@ export default [
 
   // Prettier integration
   {
-    files: ["**/*.{js,mjs,cjs,ts,tsx,jsx,json}"],
+    files: ["**/*.{js,mjs,cjs,ts,tsx,jsx}"],
     plugins: {
       prettier: prettierPlugin,
     },
