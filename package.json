@@ -38,8 +38,8 @@
     "build:local": "npm run lint:fix && tsup && npm run pack",
     "lint": "eslint | snazzy",
     "lint:fix": "eslint --fix | snazzy",
+    "lint:npm": "npmPkgJsonLint .",
     "lint:package": "npx sort-package-json",
-    "npm:lint": "npmPkgJsonLint .",
     "pack": "npm pack",
     "prepare": "husky",
     "update": "npx npm-check-updates -u && npm install"
