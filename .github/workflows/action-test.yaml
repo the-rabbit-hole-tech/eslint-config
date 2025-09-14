@@ -31,6 +31,7 @@ jobs:
       - name: Pre-Run
         run: |
           npm install --package-lock-only --ignore-scripts
+          npm ci --ignore-scripts
 
       - name: Run Build
         run: |
