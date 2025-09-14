@@ -1,5 +1,5 @@
 {
-  "name": "@the-rabbit-hole/eslint-config-plugin",
+  "name": "@the-rabbit-hole/eslint-config",
   "version": "0.0.0-development",
   "description": "A eslint config designed for @the-rabbit-hole projects, but can be used publicly.",
   "keywords": [
