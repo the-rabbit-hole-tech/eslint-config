@@ -14,6 +14,7 @@ import eslintTypescript from "./eslintTypescript";
  **/
 export const globalIgnoresArray = [
   "**/.idea/**",
+  "**/coverage/**",
   "**/node_modules{,/**}",
   "**/dist{,/**}",
   "**/lib{,/**}",
