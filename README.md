@@ -52,7 +52,6 @@ This ESLint config comes pre-bundled with a set of plugins and shareable configs
 * [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier) 🎨 — Run Prettier as an ESLint rule
 * [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier) ✂️ — Disables ESLint rules that conflict with Prettier
 * [eslint-plugin-perfectionist](https://perfectionist.dev) 🪄 — Enforces sorting and consistency
-* [eslint-plugin-sort-class-members](https://github.com/bryanrsmith/eslint-plugin-sort-class-members) 🧩 — Consistent class member ordering
 * [eslint-plugin-tailwindcss](https://github.com/francoismassart/eslint-plugin-tailwindcss) 🌬️ — Tailwind CSS class sorting and validation
 * [eslint-plugin-n](https://github.com/eslint-community/eslint-plugin-n) 📦 — Node.js best practices
 * [@eslint/js](https://eslint.org/docs/latest/use/configure/configuration-files-new) 🛠️ — Official ESLint base config

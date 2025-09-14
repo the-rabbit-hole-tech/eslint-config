@@ -26,15 +26,7 @@ export const globalIgnoresArray = [
 
 /**
  * Base extends with string keys
- * @description These are items that can be disabled.
- * @example
- * - eslintPerfectionist
- * - eslintTypescript
- * - eslintReact
- * - eslintA11y
- * - eslintTesting
- * - eslintPrettier
- * - eslintStorybook
+ * @remarks These are items that can be disabled.
  * @since 1.0.0
  */
 const baseExtendsMap = {
@@ -49,7 +41,6 @@ const baseExtendsMap = {
 
 /**
  * Factory to create ESLint config
- * @description Review for more info.
  * @since 1.0.0
  * @param options List of extend names (keys) to remove from base config
  */
@@ -76,7 +67,7 @@ export function createESLintConfig(options?: {
 
 /**
  * Default Config
- * @description Used for all 'the rabbit hole' projects.
+ * @remarks Used for all 'the rabbit hole' projects.
  * @since 1.0.0
  */
 export default createESLintConfig();
