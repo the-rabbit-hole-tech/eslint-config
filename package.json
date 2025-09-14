@@ -42,13 +42,13 @@
     "lint:package": "npx sort-package-json",
     "pack": "npm pack",
     "prepare": "husky || true",
+    "typedoc": "typedoc",
+    "typedoc:watch": "typedoc -watch",
     "update": "npx npm-check-updates -u && npm install"
   },
   "dependencies": {
     "@eslint/js": "^9.35.0",
-    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-n": "^17.22.0",
     "eslint-plugin-perfectionist": "^4.15.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
@@ -56,11 +56,13 @@
     "eslint-plugin-storybook": "^9.1.5",
     "eslint-plugin-tailwindcss": "^3.18.2",
     "eslint-plugin-testing-library": "^7.7.0",
+    "eslint-plugin-unicorn": "^61.0.2",
     "typescript-eslint": "^8.43.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@shipgirl/typedoc-plugin-versions": "^0.3.2",
     "@types/eslint-plugin-jsx-a11y": "^6.10.0",
     "@types/eslint-plugin-tailwindcss": "^3.17.0",
     "@types/node": "^24.3.3",
@@ -73,7 +75,8 @@
     "prettier": "3.6.2",
     "snazzy": "^9.0.0",
     "sort-package-json": "^3.4.0",
-    "tsup": "^8.5.0"
+    "tsup": "^8.5.0",
+    "typedoc": "^0.28.12"
   },
   "peerDependencies": {
     "eslint": "^9.35.0",

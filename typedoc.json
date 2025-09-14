@@ -1,0 +1,22 @@
+{
+  "tsconfig": "tsconfig.json",
+  "entryPoints": ["src/index.ts"],
+  "excludeExternals": true,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "githubPages": false,
+  "plugin": ["@shipgirl/typedoc-plugin-versions"],
+  "out": "./docs",
+  "name": "@the-rabbit-hole/eslint-config",
+  "navigationLinks": {
+    "GitHub": "https://github.com/the-rabbit-hole-tech/eslint-config"
+  },
+  "visibilityFilters": {
+    "protected": true,
+    "private": false,
+    "inherited": false,
+    "external": true,
+    "@alpha": false,
+    "@beta": false
+  }
+}
