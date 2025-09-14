@@ -1,5 +1,7 @@
 name: Release and Publish
 on:
+  workflow_dispatch:
+  workflow_call:
   release:
     types:
       - released
