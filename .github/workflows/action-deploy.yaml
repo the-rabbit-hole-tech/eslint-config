@@ -66,9 +66,11 @@ jobs:
         uses: JS-DevTools/npm-publish@v3
         with:
           provenance: true
-          ignore-scripts: true
+          ignore-scripts: false
           token: ${{ secrets.NPM_TOKEN }}
           tag: ${{ steps.set-npm-tag.outputs.NPM_TAG }}
+        env:
+          HUSKY_SKIP_INSTALL: 1
 
   Update_Repo:
     runs-on: ubuntu-latest
