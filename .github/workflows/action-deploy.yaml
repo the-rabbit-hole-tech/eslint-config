@@ -63,14 +63,12 @@ jobs:
           fi
 
       - name: Publish to npm
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v3.1.1
         with:
           provenance: true
-          ignore-scripts: false
+          ignore-scripts: true
           token: ${{ secrets.NPM_TOKEN }}
           tag: ${{ steps.set-npm-tag.outputs.NPM_TAG }}
-        env:
-          HUSKY_SKIP_INSTALL: 1
 
   Update_Repo:
     runs-on: ubuntu-latest
