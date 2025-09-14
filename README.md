@@ -52,15 +52,11 @@ This ESLint config comes pre-bundled with a set of plugins and shareable configs
 * [eslint-plugin-storybook](https://github.com/storybookjs/eslint-plugin-storybook) 📖 — Storybook linting
 * [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier) 🎨 — Run Prettier as an ESLint rule
 * [eslint-plugin-perfectionist](https://perfectionist.dev) 🪄 — Enforces sorting and consistency
-* [eslint-plugin-tailwindcss](https://github.com/francoismassart/eslint-plugin-tailwindcss) 🌬️ — Tailwind CSS class sorting and validation
-* [eslint-plugin-n](https://github.com/eslint-community/eslint-plugin-n) 📦 — Node.js best practices
-* [@eslint/js](https://eslint.org/docs/latest/use/configure/configuration-files-new) 🛠️ — Official ESLint base config
-
+* [eslint-plugin-unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn) 🦄— Massive rules for good code
 
 ### Configs
 
 * TBD
-
 
 ## 🤝 Contributing
 
