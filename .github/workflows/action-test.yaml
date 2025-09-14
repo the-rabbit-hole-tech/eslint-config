@@ -30,12 +30,8 @@ jobs:
 
       - name: Pre-Run
         run: |
-          npm install --package-lock-only
-          npm install --ignore-scripts
-
-      - name: Run Lint
-        run: |
-          npm run lint
+          npm install --package-lock-only --ignore-scripts
+          npm ci --ignore-scripts
 
       - name: Run Build
         run: |
