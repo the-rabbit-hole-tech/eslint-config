@@ -7,6 +7,7 @@ import eslintReact from "./eslintReact";
 import eslintStorybook from "./eslintStorybook";
 import eslintTesting from "./eslintTesting";
 import eslintTypescript from "./eslintTypescript";
+import eslintUnicorn from "./eslintUnicorn";
 
 /**
  * Global Ignores
@@ -37,12 +38,13 @@ const baseExtendsMap = {
   eslintStorybook: eslintStorybook["flat/recommended"],
   eslintTesting,
   eslintTypescript: eslintTypescript.recommended,
+  eslintUnicorn,
 } as const;
 
 /**
  * Factory to create ESLint config
  * @since 1.0.0
- * @param options List of extend names (keys) to remove from base config
+ * @param options - List of extend names (keys) to remove from base config
  */
 export function createESLintConfig(options?: {
   disableExtends?: (keyof typeof baseExtendsMap)[];
