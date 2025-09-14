@@ -10,7 +10,7 @@
 ## ✨ Overview
 
 This package provides a **shared ESLint configuration** used across all  
-[`@the-rabbit-hole`](https://github.com/the-rabbit-hole) projects.  
+[`@the-rabbit-hole`](https://github.com/the-rabbit-hole-tech) projects.  
 
 It is designed to be:
 - 🛠 **Reusable** – a single config for all JS/TS projects
