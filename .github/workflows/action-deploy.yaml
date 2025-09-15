@@ -66,6 +66,8 @@ jobs:
         uses: JS-DevTools/npm-publish@v4
         with:
           provenance: true
+          access: public
+          ignore-scripts: true
           token: ${{ secrets.NPM_TOKEN }}
           tag: ${{ steps.set-npm-tag.outputs.NPM_TAG }}
 
