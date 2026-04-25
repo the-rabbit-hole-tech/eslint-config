@@ -47,6 +47,8 @@ version-resolver:
     labels:
       - 'fix'
       - 'refactor'
+      - 'dependencies'
+      - 'security'
   default: patch
 exclude-labels:
   - skip-changelog
