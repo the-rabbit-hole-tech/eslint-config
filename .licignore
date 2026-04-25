@@ -1,0 +1,21 @@
+# GoLic, for more details see: https://github.com/Bugs5382/golic
+# Ignore everything
+*
+
+# But not these files...
+!*.ts
+!*.js
+!*.mts
+!*.mjs
+!*.cjs
+!.github/**/*.yaml
+
+# ...even if they are in subdirectories
+!*/
+
+# Always-ignored folders
+/node_modules/**
+/lib/**
+/docs/**
+/.idea/**
+/.husky/**

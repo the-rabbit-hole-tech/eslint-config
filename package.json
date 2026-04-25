@@ -19,23 +19,27 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./lib/esm/index.d.ts",
-      "import": "./lib/esm/index.js",
-      "require": "./lib/cjs/index.js",
-      "default": "./lib/cjs/index.js"
+      "import": {
+        "types": "./lib/esm/index.d.mts",
+        "default": "./lib/esm/index.mjs"
+      },
+      "require": {
+        "types": "./lib/cjs/index.d.cts",
+        "default": "./lib/cjs/index.cjs"
+      }
     }
   },
-  "main": "./lib/cjs/index.js",
-  "module": "./lib/esm/index.js",
-  "types": "./lib/esm/index.d.ts",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.mjs",
+  "types": "./lib/esm/index.d.mts",
   "files": [
     "lib/",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
-    "build:local": "tsup && eslint --fix && npm run pack",
+    "build": "tsdown",
+    "build:local": "tsdown && eslint --fix && npm run pack",
     "lint": "eslint | snazzy",
     "lint:fix": "eslint --fix | snazzy",
     "lint:npm": "npmPkgJsonLint .",
@@ -47,39 +51,39 @@
     "update": "npx npm-check-updates -u && npm install"
   },
   "dependencies": {
-    "@eslint/js": "^9.35.0",
+    "@eslint/js": "^9.39.4",
     "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-perfectionist": "^4.15.0",
-    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-perfectionist": "^5.9.0",
+    "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-sort-class-members": "^1.21.0",
-    "eslint-plugin-storybook": "^9.1.5",
-    "eslint-plugin-testing-library": "^7.7.0",
-    "eslint-plugin-unicorn": "^61.0.2",
-    "typescript-eslint": "^8.43.0"
+    "eslint-plugin-sort-class-members": "^1.22.1",
+    "eslint-plugin-storybook": "^10.3.5",
+    "eslint-plugin-testing-library": "^7.16.2",
+    "eslint-plugin-unicorn": "^64.0.0",
+    "typescript-eslint": "^8.59.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/cli": "^20.5.2",
+    "@commitlint/config-conventional": "^20.5.0",
     "@shipgirl/typedoc-plugin-versions": "^0.3.2",
-    "@types/eslint-plugin-jsx-a11y": "^6.10.0",
+    "@types/eslint-plugin-jsx-a11y": "^6.10.1",
     "@types/eslint-plugin-tailwindcss": "^3.17.0",
-    "@types/node": "^24.3.3",
-    "eslint": "^9.35.0",
-    "globals": "^16.4.0",
+    "@types/node": "^25.6.0",
+    "eslint": "^9.39.4",
+    "globals": "^17.5.0",
     "husky": "^9.1.7",
     "npm": "^11.6.0",
-    "npm-package-json-lint": "^9.0.0",
-    "npm-package-json-lint-config-default": "^8.0.1",
-    "prettier": "3.6.2",
+    "npm-package-json-lint": "^10.2.1",
+    "npm-package-json-lint-config-default": "^9.0.1",
+    "prettier": "3.8.3",
     "snazzy": "^9.0.0",
-    "sort-package-json": "^3.4.0",
-    "tsup": "^8.5.0",
-    "typedoc": "^0.28.12"
+    "sort-package-json": "^3.6.1",
+    "tsdown": "^0.21.10",
+    "typedoc": "^0.28.19"
   },
   "peerDependencies": {
-    "eslint": "^9.35.0",
-    "prettier": "3.6.2"
+    "eslint": "^9.39.4",
+    "prettier": "^3.8.3"
   },
-  "packageManager": "npm@11.6.0"
+  "packageManager": "npm@11.13.0"
 }
