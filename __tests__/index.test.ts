@@ -2,7 +2,7 @@ import type { Linter } from "eslint";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createESLintConfig, globalIgnoresArray } from "./index";
+import { createESLintConfig, globalIgnoresArray } from "../src";
 
 type ConfigEntry = {
   ignores?: string[];
