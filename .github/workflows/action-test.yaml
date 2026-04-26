@@ -49,8 +49,8 @@ jobs:
 
       - name: Pre-Run
         run: |
-          npm install --package-lock-only --ignore-scripts
-          npm ci --ignore-scripts
+          npm install --package-lock-only --ignore-scripts --legacy-peer-deps
+          npm ci --ignore-scripts --legacy-peer-deps
 
       - name: Run Tests
         run: |
