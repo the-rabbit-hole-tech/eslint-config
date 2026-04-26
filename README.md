@@ -34,11 +34,46 @@ pnpm add -D eslint @the-rabbit-hole/eslint-config
 In your `eslint.config.js` (or `eslint.config.mjs`):
 
 ```js
-import eslintConfig from "@the-rabbit-hole/eslint-config-plugin";
+import eslintConfig from "@the-rabbit-hole/eslint-config";
 export default eslintConfig;
 ```
 
 That’s it! 🚀
+
+### 🛠 Customizing
+
+Use the named `createESLintConfig` factory to disable bundled extends, add new rules, or override the package's defaults:
+
+```js
+import { createESLintConfig } from "@the-rabbit-hole/eslint-config";
+
+export default createESLintConfig({
+  // Drop bundled extends you don't want
+  disableExtends: ["eslintReact", "eslintA11y", "eslintStorybook"],
+
+  // Add your own rules — or override bundled ones
+  rules: {
+    "no-console": "error",                // additive — applied as-is
+    "react/react-in-jsx-scope": "warn",   // overrides the bundled default
+  },
+});
+```
+
+Both options are independent — pass either, both, or neither.
+
+#### Override notifications
+
+If a key in `rules` matches a rule the package sets by default, an info line is printed when ESLint loads the config so the override is visible:
+
+```
+[@the-rabbit-hole/eslint-config] Rule "react/react-in-jsx-scope" overrides the bundled default.
+```
+
+Adding rules the package does not set is silent — no message.
+
+#### Available `disableExtends` keys
+
+`eslintA11y` · `eslintPerfectionist` · `eslintPrettier` · `eslintReact` · `eslintStorybook` · `eslintTesting` · `eslintTypescript` · `eslintUnicorn`
 
 ## 🧩 What’s Included?
 
@@ -54,10 +89,6 @@ This ESLint config comes pre-bundled with a set of plugins and shareable configs
 * [eslint-plugin-perfectionist](https://perfectionist.dev) 🪄 — Enforces sorting and consistency
 * [eslint-plugin-unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn) 🦄— Massive rules for good code
 
-### Configs
-
-* TBD
-
 ## 🤝 Contributing
 
 Contributions are welcome!
@@ -67,7 +98,5 @@ If you have suggestions, improvements, or run into issues, please open a PR or i
 
 This project is licensed under the **MIT License**.
 You’re free to use it in your own public or private projects.
-
----
 
 Made with ❤️ by [@the-rabbit-hole](https://github.com/the-rabbit-hole-tech)

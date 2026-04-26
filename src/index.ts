@@ -54,25 +54,47 @@ export const globalIgnoresArray = [
  * @since 1.0.0
  */
 const baseExtendsMap = {
-  eslintA11y: eslintA11y.recommended,
-  eslintPerfectionist,
-  eslintPrettier,
-  eslintReact,
-  eslintStorybook: eslintStorybook["flat/recommended"],
-  eslintTesting,
-  eslintTypescript: eslintTypescript.recommended,
-  eslintUnicorn,
+  eslintA11y: eslintA11y.recommended as Linter.Config,
+  eslintPerfectionist: eslintPerfectionist as Linter.Config,
+  eslintPrettier: eslintPrettier as Linter.Config,
+  eslintReact: eslintReact as Linter.Config,
+  eslintStorybook: eslintStorybook["flat/recommended"] as Linter.Config[],
+  eslintTesting: eslintTesting as Linter.Config,
+  eslintTypescript: eslintTypescript.recommended as Linter.Config[],
+  eslintUnicorn: eslintUnicorn as Linter.Config,
 } as const;
+
+/**
+ * Default rules applied on top of the bundled extends.
+ * @since 1.0.0
+ */
+const baseRules: Linter.RulesRecord = {
+  "react/react-in-jsx-scope": "off",
+};
 
 /**
  * Factory to create ESLint config
  * @since 1.0.0
- * @param options - List of extend names (keys) to remove from base config
+ * @param options.disableExtends - Extend names (keys) to remove from base config
+ * @param options.rules - Rules to merge on top of the base rules. Keys that
+ *   collide with a base rule will replace it; an info message is printed for
+ *   each override so the consumer is aware.
  */
 export function createESLintConfig(options?: {
   disableExtends?: (keyof typeof baseExtendsMap)[];
+  rules?: Linter.RulesRecord;
 }) {
   const disabled = options?.disableExtends ?? [];
+  const userRules = options?.rules ?? {};
+
+  for (const ruleName of Object.keys(userRules)) {
+    if (Object.hasOwn(baseRules, ruleName)) {
+      console.info(
+        `[@the-rabbit-hole/eslint-config] Rule "${ruleName}" overrides the bundled default.`,
+      );
+    }
+  }
+
   return defineConfig([
     {
       ignores: globalIgnoresArray,
@@ -84,7 +106,8 @@ export function createESLintConfig(options?: {
         )
         .map(([, value]) => value as Linter.Config),
       rules: {
-        "react/react-in-jsx-scope": "off",
+        ...baseRules,
+        ...userRules,
       },
     },
   ]);
