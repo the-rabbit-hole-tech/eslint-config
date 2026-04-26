@@ -1,8 +1,42 @@
-.idea
-lib
-node_modules
+# Inverse strategy: ignore everything, then explicitly allow what we track.
+# Mirrors the .licignore pattern in this repo.
+
+# Ignore everything by default
+*
+
+# Source + config extensions
+!*.ts
+!*.tsx
+!*.js
+!*.mjs
+!*.cjs
+!*.json
+!*.yaml
+!*.yml
+!*.md
+
+# Tracked dotfiles
+!.gitignore
+!.licignore
+!.golic.yaml
+!.npmpackagejsonlintrc.json
+
+# Tracked extensionless files
+!LICENSE
+!.github/CODEOWNERS
+!.husky/commit-msg
+!.husky/pre-commit
+
+# Allow descent into subdirectories so the rules above apply recursively
+!*/
+
+# Always-ignored paths
+/node_modules/
+/lib/
+/docs/
+/coverage/
+/.idea/
+/.claude/
+/.husky/_/
 package-lock.json
 *.tgz
-docs
-/.claude/
-/coverage/
