@@ -1,6 +1,6 @@
 version: '3'
 vars:
-  VERSION: "v0.3.2"
+  VERSION: "v0.2.0"
   GOLIC_VERSION: v0.2.0
   COMMON_LIC: "2026 Shane"
   TEMPLATE_LIC: "mit"
@@ -25,32 +25,32 @@ tasks:
     desc: License injection
     cmds:
       - task: golic-run
-        vars: { ACTION: inject }
+        vars: {ACTION: inject}
   license-dry:
     desc: Dry run for license injection
     cmds:
       - task: golic-run
-        vars: { ACTION: inject, DRY: "true" }
+        vars: {ACTION: inject, DRY: "true"}
   license-dry-verbose:
     desc: Dry run for license inject with verbose output
     cmds:
       - task: golic-run
-        vars: { ACTION: inject, DRY: "true",  VERBOSE: "true" }
+        vars: {ACTION: inject, DRY: "true", VERBOSE: "true"}
   license-remove:
     desc: License remove
     cmds:
       - task: golic-run
-        vars: { ACTION: remove }
+        vars: {ACTION: remove}
   license-remove-dry:
     desc: Dry run for license remove
     cmds:
       - task: golic-run
-        vars: { ACTION: remove, DRY: "true" }
+        vars: {ACTION: remove, DRY: "true"}
   license-remove-dry-verbose:
     desc: Dry run for license remove with verbose output
     cmds:
       - task: golic-run
-        vars: { ACTION: remove, DRY: "true",  VERBOSE: "true" }
+        vars: {ACTION: remove, DRY: "true", VERBOSE: "true"}
   update-version:
     desc: Updates the version variable in Taskfile.yaml and package.json
     vars:
