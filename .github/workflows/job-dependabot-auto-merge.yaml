@@ -18,56 +18,35 @@
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-name: Test
+name: Dependabot Auto-Merge
 on:
-  workflow_dispatch:
-  workflow_call:
   pull_request:
     branches:
-      - "**"
-    types:
-      - opened
-      - reopened
-      - ready_for_review
-      - synchronize
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   Build:
+    if: github.actor == 'dependabot[bot]'
+    uses: ./.github/workflows/action-test.yaml
+
+  Auto_Merge:
+    name: Auto-merge if build passes
+    needs: [Build]
+    if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [24.x, 'lts/*', 'latest']
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Test with Node ${{matrix.node-version}}
-        uses: actions/setup-node@v4
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
         with:
-          node-version: ${{matrix.node-version}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pre-Run
-        run: |
-          npm install --package-lock-only --ignore-scripts --legacy-peer-deps
-          npm ci --ignore-scripts --legacy-peer-deps
-
-      - name: Run Tests
-        run: |
-          npm test
-
-      - name: Run Build
-        run: |
-          npm run build
-
-      - name: Upload build artifact
-        if: matrix.node-version == 'lts/*'
-        uses: actions/upload-artifact@v4
-        with:
-          name: cache
-          path: |
-            package.json
-            package-lock.json
-            README.md
-            LICENSE
-            ./lib
+      - name: Enable auto-merge
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

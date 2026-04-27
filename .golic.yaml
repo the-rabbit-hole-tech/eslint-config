@@ -1,0 +1,17 @@
+golic:
+  rules:
+    .ts:
+      prefix: "/*"
+      suffix: "*/"
+    .js:
+      prefix: "/*"
+      suffix: "*/"
+    .mts:
+      prefix: "/*"
+      suffix: "*/"
+    .cjs:
+      prefix: "/*"
+      suffix: "*/"
+    .mjs:
+      prefix: "/*"
+      suffix: "*/"

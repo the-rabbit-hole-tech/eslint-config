@@ -18,56 +18,49 @@
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-name: Test
+name: Release and Publish
 on:
   workflow_dispatch:
   workflow_call:
-  pull_request:
-    branches:
-      - "**"
+  release:
     types:
-      - opened
-      - reopened
-      - ready_for_review
-      - synchronize
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+      - released
+
+permissions:
+  contents: write
+  actions: write
+  checks: write
+  id-token: write
+
 jobs:
-  Build:
+  Test:
+    uses: ./.github/workflows/action-test.yaml
+
+  Publish:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'release'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [24.x, 'lts/*', 'latest']
+    needs: ['Test']
     steps:
-      - uses: actions/checkout@v4
+      - name: Create Directory
+        run: mkdir -p ./lib
 
-      - name: Test with Node ${{matrix.node-version}}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{matrix.node-version}}
-
-      - name: Pre-Run
-        run: |
-          npm install --package-lock-only --ignore-scripts --legacy-peer-deps
-          npm ci --ignore-scripts --legacy-peer-deps
-
-      - name: Run Tests
-        run: |
-          npm test
-
-      - name: Run Build
-        run: |
-          npm run build
-
-      - name: Upload build artifact
-        if: matrix.node-version == 'lts/*'
-        uses: actions/upload-artifact@v4
+      - name: Download the build artifact
+        uses: actions/download-artifact@v4
         with:
           name: cache
-          path: |
-            package.json
-            package-lock.json
-            README.md
-            LICENSE
-            ./lib
+          path: ./
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Publish to npm
+        uses: JS-DevTools/npm-publish@v4
+        with:
+          provenance: true
+          access: public
+          ignore-scripts: true
+          token: ${{ secrets.NPM_TOKEN }}
+          tag: ${{ steps.set-npm-tag.outputs.NPM_TAG }}

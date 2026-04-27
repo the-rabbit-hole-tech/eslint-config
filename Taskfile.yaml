@@ -1,0 +1,69 @@
+version: '3'
+vars:
+  VERSION: "v0.3.2"
+  GOLIC_VERSION: v0.2.0
+  COMMON_LIC: "2026 Shane"
+  TEMPLATE_LIC: "mit"
+tasks:
+  lint-init:
+    desc: Install linting tools via Brew
+    cmds:
+      - brew install golangci-lint gitleaks yamllint
+      - go install golang.org/x/tools/cmd/goimports@latest
+  lint:
+    desc: Run all linters and formatters
+    deps: [license]
+    cmds:
+      - goimports -w ./
+      - golangci-lint run
+      - yamllint .
+      - gitleaks detect . --no-git --verbose --config=.gitleaks.toml
+  golic-install:
+    desc: Install GoLic
+    cmd: go install github.com/Bugs5382/golic/cmd/golic@v0.2.0
+  license:
+    desc: License injection
+    cmds:
+      - task: golic-run
+        vars: { ACTION: inject }
+  license-dry:
+    desc: Dry run for license injection
+    cmds:
+      - task: golic-run
+        vars: { ACTION: inject, DRY: "true" }
+  license-dry-verbose:
+    desc: Dry run for license inject with verbose output
+    cmds:
+      - task: golic-run
+        vars: { ACTION: inject, DRY: "true",  VERBOSE: "true" }
+  license-remove:
+    desc: License remove
+    cmds:
+      - task: golic-run
+        vars: { ACTION: remove }
+  license-remove-dry:
+    desc: Dry run for license remove
+    cmds:
+      - task: golic-run
+        vars: { ACTION: remove, DRY: "true" }
+  license-remove-dry-verbose:
+    desc: Dry run for license remove with verbose output
+    cmds:
+      - task: golic-run
+        vars: { ACTION: remove, DRY: "true",  VERBOSE: "true" }
+  update-version:
+    desc: Updates the version variable in Taskfile.yaml and package.json
+    vars:
+      NEW_VERSION: '{{.NEW_VERSION | default .VERSION_ENV | default "local"}}'
+      PKG_VERSION: '{{trimPrefix "v" .NEW_VERSION}}'
+    preconditions:
+      - sh: command -v yq
+        msg: "yq is not installed. Install it via 'brew install yq' or the GitHub Action."
+    cmds:
+      - yq -i '.vars.VERSION = "{{.NEW_VERSION}}"' "{{.TASKFILE_DIR}}/Taskfile.yaml"
+      - npm pkg set version={{.PKG_VERSION}}
+  golic-run:
+    internal: true
+    cmds:
+      - go install github.com/Bugs5382/golic/cmd/golic@{{.GOLIC_VERSION}}
+      - 'golic {{.ACTION}} {{if eq .VERBOSE "true"}}-v {{end}}{{if eq .DRY "true"}}-d {{end}}-t {{.TEMPLATE_LIC}} -c "{{.COMMON_LIC}}"'

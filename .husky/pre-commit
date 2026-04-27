@@ -1,2 +1,9 @@
+#!/usr/bin/env sh
+set -e
+
 npm run lint:fix
 npm run lint:package
+
+# Re-stage any already-tracked file that the fixers modified, so the sort
+# and lint-fix actually land in the commit instead of dangling in the worktree.
+git update-index --again

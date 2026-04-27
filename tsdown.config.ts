@@ -20,23 +20,37 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
-import { Linter } from "eslint";
-import eslintPluginUnicorn from "eslint-plugin-unicorn";
+import { defineConfig } from "tsdown";
 
-/**
- * ESLint for Unicorn
- */
-export const eslintUnicorn: Linter.Config = {
-  ...eslintPluginUnicorn.configs.recommended,
-  rules: {
-    ...eslintPluginUnicorn.configs.recommended.rules,
-    "unicorn/filename-case": [
-      "warn",
-      {
-        case: "camelCase",
-      },
-    ],
+export default defineConfig([
+  {
+    clean: true,
+    deps: {
+      skipNodeModulesBundle: true,
+    },
+    dts: {
+      entry: "src/index.ts",
+      resolver: "tsc",
+    },
+    entry: ["src/index.ts"],
+    format: "esm",
+    minify: true,
+    outDir: "lib/esm",
+    outputOptions: { exports: "named" },
+    sourcemap: true,
+    target: "esnext",
   },
-};
-
-export default eslintUnicorn;
+  {
+    clean: false,
+    deps: {
+      skipNodeModulesBundle: true,
+    },
+    entry: ["src/index.ts"],
+    format: "cjs",
+    minify: true,
+    outDir: "lib/cjs",
+    outputOptions: { exports: "named" },
+    sourcemap: true,
+    target: "esnext",
+  },
+]);
