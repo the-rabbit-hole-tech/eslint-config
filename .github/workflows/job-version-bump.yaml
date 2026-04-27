@@ -96,4 +96,4 @@ jobs:
           publish: true
           commitish: main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
