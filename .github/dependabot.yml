@@ -8,6 +8,7 @@ updates:
     versioning-strategy: increase
     labels:
       - dependencies
+      - fix
     groups:
       production-dependencies:
         dependency-type: production
@@ -28,6 +29,7 @@ updates:
       interval: weekly
     labels:
       - dependencies
+      - fix
     groups:
       github-actions:
         patterns:
