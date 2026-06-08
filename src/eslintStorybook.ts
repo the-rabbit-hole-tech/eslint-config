@@ -20,12 +20,21 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
-import storybook from "eslint-plugin-storybook";
+import { Linter } from "eslint";
+import { createRequire } from "node:module";
+
+const requirePlugin = createRequire(import.meta.url);
 
 /**
- * ESLint Rule for Storybook
+ * ESLint config for Storybook, loaded lazily.
+ *
+ * @remarks eslint-plugin-storybook imports the `storybook` package at module
+ * load time. Requiring the plugin lazily -- only when this extend is enabled --
+ * means consumers that disable it (e.g. a Node library passing
+ * `disableExtends: ["eslintStorybook"]`) never need `storybook` installed.
  * @since 1.0.0
  */
-export const eslintStorybook = storybook.configs;
-
-export default eslintStorybook;
+export default function eslintStorybook(): Linter.Config[] {
+  const storybook = requirePlugin("eslint-plugin-storybook");
+  return storybook.configs["flat/recommended"];
+}

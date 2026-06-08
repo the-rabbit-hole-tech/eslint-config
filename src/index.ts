@@ -53,16 +53,25 @@ export const globalIgnoresArray = [
  * @remarks These are items that can be disabled.
  * @since 1.0.0
  */
+/**
+ * A lazy producer of one extend's config. Loading is deferred so a disabled
+ * extend never loads its plugin -- critical for eslintStorybook, whose plugin
+ * imports the `storybook` package at load time. The explicit return type keeps
+ * the inferred map type portable for declaration emit.
+ * @since 1.0.0
+ */
+type ExtendFactory = () => Linter.Config | Linter.Config[];
+
 const baseExtendsMap = {
-  eslintA11y: eslintA11y.recommended as Linter.Config,
-  eslintPerfectionist: eslintPerfectionist as Linter.Config,
-  eslintPrettier: eslintPrettier as Linter.Config,
-  eslintReact: eslintReact as Linter.Config,
-  eslintStorybook: eslintStorybook["flat/recommended"] as Linter.Config[],
-  eslintTesting: eslintTesting as Linter.Config,
-  eslintTypescript: eslintTypescript.recommended as Linter.Config[],
-  eslintUnicorn: eslintUnicorn as Linter.Config,
-} as const;
+  eslintA11y: (() => eslintA11y.recommended) as ExtendFactory,
+  eslintPerfectionist: (() => eslintPerfectionist) as ExtendFactory,
+  eslintPrettier: (() => eslintPrettier) as ExtendFactory,
+  eslintReact: (() => eslintReact) as ExtendFactory,
+  eslintStorybook: (() => eslintStorybook()) as ExtendFactory,
+  eslintTesting: (() => eslintTesting) as ExtendFactory,
+  eslintTypescript: (() => eslintTypescript.recommended) as ExtendFactory,
+  eslintUnicorn: (() => eslintUnicorn) as ExtendFactory,
+};
 
 /**
  * Default rules applied on top of the bundled extends.
@@ -104,7 +113,7 @@ export function createESLintConfig(options?: {
         .filter(
           ([key]) => !disabled.includes(key as keyof typeof baseExtendsMap),
         )
-        .map(([, value]) => value as Linter.Config),
+        .map(([, factory]) => factory()),
       rules: {
         ...baseRules,
         ...userRules,
