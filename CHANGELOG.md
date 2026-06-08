@@ -1,5 +1,21 @@
 # @the-rabbit-hole/eslint-config
 
+## v0.4.0 - 2026-06-08
+
+### What Changed 👀
+
+#### 🚀 Features
+
+- fix: skip Storybook config when storybook is not installed @Bugs5382 (#28)
+
+#### 🐛 Bug Fixes
+
+- fix: skip Storybook config when storybook is not installed @Bugs5382 (#28)
+
+### Extra
+
+**Full Changelog**: https://github.com/the-rabbit-hole-tech/eslint-config/compare/v0.3.0...v0.4.0
+
 ## v0.3.0 - 2026-06-08
 
 ### What Changed 👀
