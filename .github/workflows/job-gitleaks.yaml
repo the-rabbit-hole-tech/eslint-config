@@ -1,0 +1,35 @@
+name: Gitleaks
+# Secret scan on EVERY push and PR -- no paths-ignore, because a secret can land
+# in any file, docs included. Hard failure: the scan exits non-zero on a finding.
+#
+# Runs the gitleaks CLI directly rather than gitleaks/gitleaks-action@v2: that
+# action requires a paid GITLEAKS_LICENSE for organization-owned repos, while the
+# CLI is free everywhere. This matches the `gitleaks detect` the repos already
+# run locally via `task lint`.
+on:
+  push:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  gitleaks:
+    name: 🔒 Gitleaks (secret scan)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          VERSION="8.30.0"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+      - name: Run Gitleaks
+        run: |
+          # Honor a repo-local .gitleaks.toml if present; scan the full tree.
+          config_arg=""
+          [ -f .gitleaks.toml ] && config_arg="--config .gitleaks.toml"
+          gitleaks detect --source . --redact --verbose --no-banner $config_arg
