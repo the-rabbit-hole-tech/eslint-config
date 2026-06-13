@@ -47,7 +47,7 @@ jobs:
       - name: Download the build artifact
         uses: actions/download-artifact@v8
         with:
-          name: cache
+          name: lib
           path: ./
 
       - name: Setup Node.js
@@ -63,4 +63,3 @@ jobs:
           access: public
           ignore-scripts: true
           token: ${{ secrets.NPM_TOKEN }}
-          tag: ${{ steps.set-npm-tag.outputs.NPM_TAG }}
