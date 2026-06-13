@@ -1,6 +1,6 @@
 {
   "name": "@the-rabbit-hole/eslint-config",
-  "version": "0.4.2",
+  "version": "0.4.1",
   "description": "A eslint config designed for @the-rabbit-hole projects, but can be used publicly.",
   "keywords": [
     "eslint",
