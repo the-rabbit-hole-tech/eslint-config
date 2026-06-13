@@ -1,5 +1,17 @@
 # @the-rabbit-hole/eslint-config
 
+## v0.4.2 - 2026-06-13
+
+### What Changed 👀
+
+#### 🐛 Bug Fixes
+
+- fix: npm publish fails on build-artifact name mismatch @Bugs5382 (#36)
+
+### Extra
+
+**Full Changelog**: https://github.com/the-rabbit-hole-tech/eslint-config/compare/v0.4.1...v0.4.2
+
 ## v0.4.1 - 2026-06-13
 
 ### What Changed 👀
