@@ -1,21 +1,30 @@
-# GoLic, for more details see: https://github.com/Bugs5382/golic
-# Ignore everything
+# GoLic ignore file -- https://github.com/Bugs5382/golic
+# Ignore everything...
 *
 
-# But not these files...
+# ...but inject the MIT header into these source types:
 !*.ts
+!*.tsx
 !*.js
 !*.mts
 !*.mjs
 !*.cjs
-!.github/**/*.yaml
 
-# ...even if they are in subdirectories
+# ...even when they live in subdirectories:
 !*/
 
-# Always-ignored folders
+# Never the build output, deps, caches, or generated docs:
 /node_modules/**
+**/node_modules/**
+/dist/**
+**/dist/**
 /lib/**
+**/lib/**
+/coverage/**
+**/coverage/**
+/temp/**
+**/temp/**
 /docs/**
+**/docs/**
 /.idea/**
 /.husky/**

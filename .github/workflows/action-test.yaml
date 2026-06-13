@@ -33,8 +33,11 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
+permissions:
+  contents: read
 jobs:
   Build:
+    name: 🧪 Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -54,6 +57,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts --legacy-peer-deps
 
+      - name: Lint
+        run: npm run lint
+
       - name: Run Tests
         run: |
           npm test
@@ -62,14 +68,18 @@ jobs:
         run: |
           npm run build
 
+      - name: Build Docs (warnings fail the build)
+        run: npm run docs
+
       - name: Upload build artifact
         if: matrix.node-version == 'lts/*'
         uses: actions/upload-artifact@v7
         with:
-          name: cache
+          name: lib
           path: |
             package.json
             package-lock.json
             README.md
             LICENSE
+            CHANGELOG.md
             ./lib
