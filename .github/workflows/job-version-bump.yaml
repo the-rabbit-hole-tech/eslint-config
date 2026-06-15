@@ -94,7 +94,7 @@ jobs:
           RELEASE_NOTES: >-
             ${{ steps.drafter.outputs.body }}
           RELEASE_VERSION: v${{ steps.drafter.outputs.resolved_version }}
-        uses: bugs5382/changelog-updater-action@v0.3.2
+        uses: bugs5382/changelog-updater-action@v0.4.0
         with:
           tag: ${{ env.RELEASE_VERSION }}
           notes: ${{ env.RELEASE_NOTES }}
