@@ -15,7 +15,7 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": false,
-    "baseUrl": "."
+    "types": ["node"]
   },
   "include": ["src/**/*"]
 }

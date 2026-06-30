@@ -172,6 +172,37 @@ describe("integration: real ESLint run against sample code (default config minus
   );
 });
 
+describe("integration: eslintTypedoc opt-in extend", () => {
+  // An exported symbol with no doc comment trips
+  // `typedoc/require-exported-doc-comment` once the extend is enabled.
+  const UNDOCUMENTED_EXPORT = "export const value = 1;\n";
+
+  it(
+    "does not fire typedoc rules unless enabled",
+    async () => {
+      const eslint = newEslint({ disableExtends: ["eslintReact"] });
+      const messages = await lint(eslint, UNDOCUMENTED_EXPORT, "sample.ts");
+      expect(hasPluginRule(messages, "typedoc/")).toBe(false);
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    "fires typedoc/require-exported-doc-comment when enabled",
+    async () => {
+      const eslint = newEslint({
+        disableExtends: ["eslintReact"],
+        enable: ["eslintTypedoc"],
+      });
+      const messages = await lint(eslint, UNDOCUMENTED_EXPORT, "sample.ts");
+      expect(ruleIds(messages)).toContain(
+        "typedoc/require-exported-doc-comment",
+      );
+    },
+    TEST_TIMEOUT,
+  );
+});
+
 describe("integration: option wiring with various plugins on / off", () => {
   it(
     "disableExtends actually drops the plugin's rules at lint time",

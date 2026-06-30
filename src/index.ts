@@ -29,6 +29,7 @@ import eslintPrettier from "./eslintPretter";
 import eslintReact from "./eslintReact";
 import eslintStorybook from "./eslintStorybook";
 import eslintTesting from "./eslintTesting";
+import eslintTypedoc from "./eslintTypedoc";
 import eslintTypescript from "./eslintTypescript";
 import eslintUnicorn from "./eslintUnicorn";
 
@@ -74,6 +75,18 @@ const baseExtendsMap = {
 };
 
 /**
+ * Opt-in extends with string keys.
+ * @remarks Unlike {@link baseExtendsMap}, these are never applied unless named
+ * in `createESLintConfig({ enable })`. `eslintTypedoc` enforces TSDoc/TypeDoc
+ * doc-comment coverage on exported APIs, so it is opt-in to keep non-library
+ * consumers from being forced into doc-coverage errors.
+ * @since 0.5.0
+ */
+const optInExtendsMap = {
+  eslintTypedoc: (() => eslintTypedoc) as ExtendFactory,
+};
+
+/**
  * Default rules applied on top of the bundled extends.
  * @since 1.0.0
  */
@@ -85,15 +98,19 @@ const baseRules: Linter.RulesRecord = {
  * Factory to create ESLint config
  * @since 1.0.0
  * @param options.disableExtends - Extend names (keys) to remove from base config
+ * @param options.enable - Opt-in extend names (keys) to add on top of the base
+ *   config. Currently `eslintTypedoc` (TSDoc/TypeDoc doc-coverage enforcement).
  * @param options.rules - Rules to merge on top of the base rules. Keys that
  *   collide with a base rule will replace it; an info message is printed for
  *   each override so the consumer is aware.
  */
 export function createESLintConfig(options?: {
   disableExtends?: (keyof typeof baseExtendsMap)[];
+  enable?: (keyof typeof optInExtendsMap)[];
   rules?: Linter.RulesRecord;
 }) {
   const disabled = options?.disableExtends ?? [];
+  const enabled = options?.enable ?? [];
   const userRules = options?.rules ?? {};
 
   for (const ruleName of Object.keys(userRules)) {
@@ -109,11 +126,18 @@ export function createESLintConfig(options?: {
       ignores: globalIgnoresArray,
     },
     {
-      extends: Object.entries(baseExtendsMap)
-        .filter(
-          ([key]) => !disabled.includes(key as keyof typeof baseExtendsMap),
-        )
-        .map(([, factory]) => factory()),
+      extends: [
+        ...Object.entries(baseExtendsMap)
+          .filter(
+            ([key]) => !disabled.includes(key as keyof typeof baseExtendsMap),
+          )
+          .map(([, factory]) => factory()),
+        ...Object.entries(optInExtendsMap)
+          .filter(([key]) =>
+            enabled.includes(key as keyof typeof optInExtendsMap),
+          )
+          .map(([, factory]) => factory()),
+      ],
       rules: {
         ...baseRules,
         ...userRules,

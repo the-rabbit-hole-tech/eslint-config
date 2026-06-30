@@ -21,32 +21,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 import { Linter } from "eslint";
-import eslintPluginUnicorn from "eslint-plugin-unicorn";
+import typedocPlugin from "eslint-plugin-typedoc";
 
 /**
- * ESLint for Unicorn
+ * ESLint for TypeDoc / TSDoc documentation quality.
+ *
+ * @remarks Wraps `eslint-plugin-typedoc`'s `recommended` preset, which enforces
+ * doc-comment coverage on exported APIs (`require-exported-doc-comment`) and
+ * tag correctness (unknown/duplicate/empty tags, malformed inline links). The
+ * preset is already scoped to `**\/*.{ts,tsx,mts,cts}`. This extend is opt-in
+ * so non-library consumers are not forced into doc-coverage errors -- enable it
+ * via `createESLintConfig({ enable: ["eslintTypedoc"] })`.
+ * @since 0.5.0
  */
-export const eslintUnicorn: Linter.Config = {
-  ...eslintPluginUnicorn.configs.recommended,
-  rules: {
-    ...eslintPluginUnicorn.configs.recommended.rules,
-    // unicorn v69 added `consistent-boolean-name` to `recommended` at the
-    // error level, forcing every boolean to start with is/has/should/etc.
-    // That would turn existing, well-named booleans across consumer projects
-    // into hard errors on a routine upgrade, so it is disabled here and left
-    // as a deliberate opt-in rather than shipped silently.
-    "unicorn/consistent-boolean-name": "off",
-    "unicorn/filename-case": [
-      "warn",
-      {
-        case: "camelCase",
-        // Permit the `__dunder__` directory convention (`__tests__`,
-        // `__mocks__`, `__snapshots__`) that unicorn v69 began flagging when
-        // it started checking directory segments.
-        ignore: [/^__\w+__$/u],
-      },
-    ],
-  },
-};
+export const eslintTypedoc = typedocPlugin.configs.recommended as Linter.Config;
 
-export default eslintUnicorn;
+export default eslintTypedoc;

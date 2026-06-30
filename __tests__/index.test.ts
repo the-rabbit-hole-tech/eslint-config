@@ -81,6 +81,28 @@ describe("createESLintConfig", () => {
     });
   });
 
+  describe("enable (opt-in extends)", () => {
+    it("does not include eslintTypedoc by default", () => {
+      const config = createESLintConfig() as ConfigEntry[];
+      expect(includesPlugin(config, "typedoc")).toBe(false);
+    });
+
+    it("adds eslintTypedoc only when named in enable", () => {
+      const config = createESLintConfig({
+        enable: ["eslintTypedoc"],
+      }) as ConfigEntry[];
+      expect(includesPlugin(config, "typedoc")).toBe(true);
+    });
+
+    it("leaves the base extends intact when an opt-in extend is enabled", () => {
+      const config = createESLintConfig({
+        enable: ["eslintTypedoc"],
+      }) as ConfigEntry[];
+      expect(includesPlugin(config, "unicorn")).toBe(true);
+      expect(includesPlugin(config, "typescript-eslint")).toBe(true);
+    });
+  });
+
   describe("rules", () => {
     it("applies the bundled default rule when no user rules are provided", () => {
       const config = createESLintConfig() as ConfigEntry[];
