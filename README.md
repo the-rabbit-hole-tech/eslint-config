@@ -2,7 +2,7 @@
 
 ![npm version](https://img.shields.io/npm/v/@the-rabbit-hole/eslint-config?style=for-the-badge&logo=npm&label=version)
 ![npm downloads](https://img.shields.io/npm/dm/@the-rabbit-hole/eslint-config?style=for-the-badge&logo=npm&label=downloads)
-![ESLint](https://img.shields.io/badge/ESLint-9.x-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+![ESLint](https://img.shields.io/badge/ESLint-9.x%20%7C%2010.x-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
@@ -51,6 +51,9 @@ export default createESLintConfig({
   // Drop bundled extends you don't want
   disableExtends: ["eslintReact", "eslintA11y", "eslintStorybook"],
 
+  // Turn on opt-in extends that are off by default
+  enable: ["eslintTypedoc"],
+
   // Add your own rules — or override bundled ones
   rules: {
     "no-console": "error",                // additive — applied as-is
@@ -59,7 +62,7 @@ export default createESLintConfig({
 });
 ```
 
-Both options are independent — pass either, both, or neither.
+All options are independent — pass any combination, or none.
 
 #### Override notifications
 
@@ -75,6 +78,19 @@ Adding rules the package does not set is silent — no message.
 
 `eslintA11y` · `eslintPerfectionist` · `eslintPrettier` · `eslintReact` · `eslintStorybook` · `eslintTesting` · `eslintTypescript` · `eslintUnicorn`
 
+#### Opt-in extends (`enable`)
+
+These are **off by default** and only applied when named in `enable`:
+
+* `eslintTypedoc` — enforces [TypeDoc](https://typedoc.org)/TSDoc documentation quality via [eslint-plugin-typedoc](https://github.com/Nick2bad4u/eslint-plugin-typedoc): doc-comment coverage on exported APIs (`typedoc/require-exported-doc-comment`), plus tag correctness (unknown/duplicate/empty tags, malformed inline links). It is opt-in so non-library consumers aren't forced into doc-coverage errors. Scoped to `**/*.{ts,tsx,mts,cts}`.
+
+```js
+import { createESLintConfig } from "@the-rabbit-hole/eslint-config";
+
+// A library that wants its public API documentation linted:
+export default createESLintConfig({ enable: ["eslintTypedoc"] });
+```
+
 ## 🧩 What’s Included?
 
 This ESLint config comes pre-bundled with a set of plugins and shareable configs tailored for modern TypeScript + React projects:
@@ -88,6 +104,14 @@ This ESLint config comes pre-bundled with a set of plugins and shareable configs
 * [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier) 🎨 — Run Prettier as an ESLint rule
 * [eslint-plugin-perfectionist](https://perfectionist.dev) 🪄 — Enforces sorting and consistency
 * [eslint-plugin-unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn) 🦄— Massive rules for good code
+
+### Opt-in plugins
+
+* [eslint-plugin-typedoc](https://github.com/Nick2bad4u/eslint-plugin-typedoc) 📚 — TypeDoc/TSDoc documentation quality (enable with `enable: ["eslintTypedoc"]`)
+
+## 🎨 A note on Prettier
+
+`eslint-plugin-prettier` runs Prettier as an ESLint rule, so the **Prettier version decides the formatting**. To keep `prettier/prettier` verdicts deterministic, this package ships **Prettier as a pinned, exact dependency** rather than a floating peer — the formatter engine only changes in an intentional, changelogged release. You do **not** need to install or pin Prettier yourself; remove any `prettier` peer expectation you previously satisfied for this config.
 
 ## 🤝 Contributing
 
