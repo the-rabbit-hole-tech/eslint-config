@@ -1,5 +1,21 @@
 # @the-rabbit-hole/eslint-config
 
+## v0.5.1 - 2026-06-30
+
+### What Changed 👀
+
+#### 🐛 Bug Fixes
+
+- fix(deps): hold eslint-plugin-unicorn at the eslint-9 line (^65.0.1) @Bugs5382 (#52)
+
+#### 🧩 Dependency Updates
+
+- fix(deps): hold eslint-plugin-unicorn at the eslint-9 line (^65.0.1) @Bugs5382 (#52)
+
+### Extra
+
+**Full Changelog**: https://github.com/the-rabbit-hole-tech/eslint-config/compare/v0.5.0...v0.5.1
+
 ## v0.5.0 - 2026-06-30
 
 ### What Changed 👀

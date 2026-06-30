@@ -1,6 +1,6 @@
 version: '3'
 vars:
-  VERSION: "v0.5.0"
+  VERSION: "v0.5.1"
   GOLIC_VERSION: v0.2.0
   COMMON_LIC: "2026 Shane"
   TEMPLATE_LIC: "mit"
