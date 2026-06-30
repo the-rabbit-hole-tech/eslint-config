@@ -29,8 +29,9 @@ jobs:
         uses: arduino/setup-task@v2
         with:
           version: 3.x
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Authenticate setup-task's GitHub API calls; without this it uses
+          # the anonymous rate limit and fails with "API rate limit exceeded".
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify MIT headers
         run: |
           export PATH="${PATH}:$(go env GOPATH)/bin"

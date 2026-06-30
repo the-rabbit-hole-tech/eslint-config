@@ -58,8 +58,9 @@ jobs:
         uses: arduino/setup-task@v2
         with:
           version: 3.x
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Authenticate setup-task's GitHub API calls; without this it uses
+          # the anonymous rate limit and fails with "API rate limit exceeded".
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📝 Release Drafter (Anticipate Version)
         id: drafter
@@ -108,12 +109,3 @@ jobs:
           commit_user_name: ${{ github.actor }}
           commit_user_email: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
           commit_author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
-
-      - name: 🏷️ Publish Release
-        if: contains(github.event.head_commit.author.name, 'dependabot') || contains(github.event.head_commit.message, 'dependabot')
-        uses: release-drafter/release-drafter@v7
-        with:
-          publish: true
-          commitish: main
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
