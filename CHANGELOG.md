@@ -6,6 +6,7 @@
 
 #### 🚀 Features
 
+- feat: make jsx-a11y, testing-library, and storybook opt-in extends @Bugs5382 (#50)
 - feat: add opt-in eslintTypedoc extend, pin Prettier, and upgrade deps @Bugs5382 (#48)
 
 #### 🧩 Dependency Updates
