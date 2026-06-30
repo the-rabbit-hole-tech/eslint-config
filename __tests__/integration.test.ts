@@ -202,6 +202,44 @@ describe("integration: opt-in extends fire only when enabled", () => {
   );
 });
 
+// Even when jsx-a11y / testing-library are NOT enabled, their plugins are
+// loaded (rules off) so a consumer's existing `<plugin>/<rule>` disable
+// directives resolve instead of hard-erroring. Their rules still don't fire.
+describe("integration: jsx-a11y / testing-library directives resolve without enabling (#57)", () => {
+  it(
+    "does not hard-error on a jsx-a11y / testing-library disable directive in the default config",
+    async () => {
+      const eslint = newEslint({ disableExtends: ["eslintReact"] });
+      const code = [
+        "/* eslint-disable jsx-a11y/no-autofocus, testing-library/no-node-access -- #57 repro */",
+        "export const x = 1;",
+        "",
+      ].join("\n");
+      const [result] = await eslint.lintText(code, { filePath: "sample.tsx" });
+      const notFound = result.messages.filter((m) =>
+        /was not found/.test(m.message),
+      );
+      expect(notFound).toEqual([]);
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    "still does not fire testing-library rules by default",
+    async () => {
+      const eslint = newEslint({ disableExtends: ["eslintReact"] });
+      const code = [
+        'import { render, cleanup } from "@testing-library/react";',
+        'test("x", () => { render(null); cleanup(); });',
+        "",
+      ].join("\n");
+      const messages = await lint(eslint, code, "sample.test.tsx");
+      expect(hasPluginRule(messages, "testing-library/")).toBe(false);
+    },
+    TEST_TIMEOUT,
+  );
+});
+
 describe("integration: eslintTypedoc opt-in extend", () => {
   // An exported symbol with no doc comment trips
   // `typedoc/require-exported-doc-comment` once the extend is enabled.

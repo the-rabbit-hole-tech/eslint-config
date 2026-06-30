@@ -28,4 +28,16 @@ import jsxA11y from "eslint-plugin-jsx-a11y";
  */
 export const eslintA11y = jsxA11y.flatConfigs;
 
+/**
+ * Register-only jsx-a11y config: loads the plugin (so `jsx-a11y/*` rule
+ * references — e.g. inline `eslint-disable` directives — resolve) without
+ * enabling any rules. Applied even when `eslintA11y` is not in `enable`, so a
+ * consumer's directive never hard-errors with "Definition for rule … was not
+ * found"; `enable` swaps in the full recommended ruleset on top.
+ * @since 0.5.2
+ */
+export const eslintA11yRegister = {
+  plugins: jsxA11y.flatConfigs.recommended.plugins,
+};
+
 export default eslintA11y;

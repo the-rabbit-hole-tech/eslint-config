@@ -23,12 +23,12 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import { Linter } from "eslint";
 import { defineConfig } from "eslint/config";
 
-import eslintA11y from "./eslintA11y";
+import eslintA11y, { eslintA11yRegister } from "./eslintA11y";
 import eslintPerfectionist from "./eslintPerfectionist";
 import eslintPrettier from "./eslintPretter";
 import eslintReact from "./eslintReact";
 import eslintStorybook from "./eslintStorybook";
-import eslintTesting from "./eslintTesting";
+import eslintTesting, { eslintTestingRegister } from "./eslintTesting";
 import eslintTypedoc from "./eslintTypedoc";
 import eslintTypescript from "./eslintTypescript";
 import eslintUnicorn from "./eslintUnicorn";
@@ -73,26 +73,42 @@ const baseExtendsMap = {
 
 /**
  * Opt-in extends with string keys.
- * @remarks Unlike {@link baseExtendsMap}, these are never applied unless named
- * in `createESLintConfig({ enable })`. They target a specific kind of project
- * rather than every consumer:
+ * @remarks Unlike {@link baseExtendsMap}, their **rules** are off unless the
+ * key is named in `createESLintConfig({ enable })`. They target a specific kind
+ * of project rather than every consumer:
  *
  * - `eslintA11y` -- JSX accessibility rules (React component code).
  * - `eslintStorybook` -- Storybook story linting.
  * - `eslintTesting` -- Testing Library rules (test files).
  * - `eslintTypedoc` -- TSDoc/TypeDoc doc-comment coverage on exported APIs.
  *
- * Keeping them opt-in means a plain Node library does not inherit
- * accessibility, Storybook, Testing Library, or doc-coverage errors it has no
- * use for.
+ * Each entry has a `full` form (plugin + recommended rules), applied when the
+ * key is enabled. `eslintA11y` and `eslintTesting` additionally have a
+ * `register` form (plugin loaded, **no** rules) that is applied even when *not*
+ * enabled, so a consumer's inline `jsx-a11y/*` or `testing-library/*`
+ * `eslint-disable` directives still resolve instead of hard-erroring with
+ * "Definition for rule … was not found". Their rules stay off until enabled, so
+ * opt-in coverage is unchanged.
+ *
+ * `eslintStorybook` and `eslintTypedoc` have no `register` form -- they stay
+ * fully lazy (`full` only): the storybook plugin imports the optional
+ * `storybook` package at load time (see the laziness contract in AGENTS.md), so
+ * it must not be loaded for consumers that don't enable it; typedoc is
+ * doc-coverage that a non-documented project shouldn't load.
  * @since 0.5.0
  */
 const optInExtendsMap = {
-  eslintA11y: (() => eslintA11y.recommended) as ExtendFactory,
-  eslintStorybook: (() => eslintStorybook()) as ExtendFactory,
-  eslintTesting: (() => eslintTesting) as ExtendFactory,
-  eslintTypedoc: (() => eslintTypedoc) as ExtendFactory,
-};
+  eslintA11y: {
+    full: (() => eslintA11y.recommended) as ExtendFactory,
+    register: (() => eslintA11yRegister) as ExtendFactory,
+  },
+  eslintStorybook: { full: (() => eslintStorybook()) as ExtendFactory },
+  eslintTesting: {
+    full: (() => eslintTesting) as ExtendFactory,
+    register: (() => eslintTestingRegister) as ExtendFactory,
+  },
+  eslintTypedoc: { full: (() => eslintTypedoc) as ExtendFactory },
+} satisfies Record<string, { full: ExtendFactory; register?: ExtendFactory }>;
 
 /**
  * Default rules applied on top of the bundled extends.
@@ -106,9 +122,12 @@ const baseRules: Linter.RulesRecord = {
  * Factory to create ESLint config
  * @since 1.0.0
  * @param options.disableExtends - Extend names (keys) to remove from base config
- * @param options.enable - Opt-in extend names (keys) to add on top of the base
- *   config: `eslintA11y`, `eslintStorybook`, `eslintTesting`, and
- *   `eslintTypedoc`. All are off unless named here.
+ * @param options.enable - Opt-in extend names (keys) whose rules to turn on:
+ *   `eslintA11y`, `eslintStorybook`, `eslintTesting`, and `eslintTypedoc`.
+ *   Rules are off unless named here. Note: the `eslintA11y` and `eslintTesting`
+ *   plugins are still *loaded* (rules off) when not enabled, so existing
+ *   `jsx-a11y/*` and `testing-library/*` disable directives resolve;
+ *   `eslintStorybook` and `eslintTypedoc` are not loaded at all until enabled.
  * @param options.rules - Rules to merge on top of the base rules. Keys that
  *   collide with a base rule will replace it; an info message is printed for
  *   each override so the consumer is aware.
@@ -141,11 +160,16 @@ export function createESLintConfig(options?: {
             ([key]) => !disabled.includes(key as keyof typeof baseExtendsMap),
           )
           .map(([, factory]) => factory()),
-        ...Object.entries(optInExtendsMap)
-          .filter(([key]) =>
-            enabled.includes(key as keyof typeof optInExtendsMap),
-          )
-          .map(([, factory]) => factory()),
+        ...Object.entries(optInExtendsMap).flatMap(([key, entry]) => {
+          // Enabled -> the full plugin + recommended rules. Not enabled ->
+          // the register-only form (plugin loaded, no rules) if the extend
+          // has one, so its `eslint-disable` directives still resolve; extends
+          // with no register form (storybook, typedoc) stay fully lazy.
+          if (enabled.includes(key as keyof typeof optInExtendsMap)) {
+            return [entry.full()];
+          }
+          return "register" in entry ? [entry.register()] : [];
+        }),
       ],
       rules: {
         ...baseRules,
