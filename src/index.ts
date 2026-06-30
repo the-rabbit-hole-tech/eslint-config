@@ -64,12 +64,9 @@ export const globalIgnoresArray = [
 type ExtendFactory = () => Linter.Config | Linter.Config[];
 
 const baseExtendsMap = {
-  eslintA11y: (() => eslintA11y.recommended) as ExtendFactory,
   eslintPerfectionist: (() => eslintPerfectionist) as ExtendFactory,
   eslintPrettier: (() => eslintPrettier) as ExtendFactory,
   eslintReact: (() => eslintReact) as ExtendFactory,
-  eslintStorybook: (() => eslintStorybook()) as ExtendFactory,
-  eslintTesting: (() => eslintTesting) as ExtendFactory,
   eslintTypescript: (() => eslintTypescript.recommended) as ExtendFactory,
   eslintUnicorn: (() => eslintUnicorn) as ExtendFactory,
 };
@@ -77,12 +74,23 @@ const baseExtendsMap = {
 /**
  * Opt-in extends with string keys.
  * @remarks Unlike {@link baseExtendsMap}, these are never applied unless named
- * in `createESLintConfig({ enable })`. `eslintTypedoc` enforces TSDoc/TypeDoc
- * doc-comment coverage on exported APIs, so it is opt-in to keep non-library
- * consumers from being forced into doc-coverage errors.
+ * in `createESLintConfig({ enable })`. They target a specific kind of project
+ * rather than every consumer:
+ *
+ * - `eslintA11y` -- JSX accessibility rules (React component code).
+ * - `eslintStorybook` -- Storybook story linting.
+ * - `eslintTesting` -- Testing Library rules (test files).
+ * - `eslintTypedoc` -- TSDoc/TypeDoc doc-comment coverage on exported APIs.
+ *
+ * Keeping them opt-in means a plain Node library does not inherit
+ * accessibility, Storybook, Testing Library, or doc-coverage errors it has no
+ * use for.
  * @since 0.5.0
  */
 const optInExtendsMap = {
+  eslintA11y: (() => eslintA11y.recommended) as ExtendFactory,
+  eslintStorybook: (() => eslintStorybook()) as ExtendFactory,
+  eslintTesting: (() => eslintTesting) as ExtendFactory,
   eslintTypedoc: (() => eslintTypedoc) as ExtendFactory,
 };
 
@@ -99,7 +107,8 @@ const baseRules: Linter.RulesRecord = {
  * @since 1.0.0
  * @param options.disableExtends - Extend names (keys) to remove from base config
  * @param options.enable - Opt-in extend names (keys) to add on top of the base
- *   config. Currently `eslintTypedoc` (TSDoc/TypeDoc doc-coverage enforcement).
+ *   config: `eslintA11y`, `eslintStorybook`, `eslintTesting`, and
+ *   `eslintTypedoc`. All are off unless named here.
  * @param options.rules - Rules to merge on top of the base rules. Keys that
  *   collide with a base rule will replace it; an info message is printed for
  *   each override so the consumer is aware.
