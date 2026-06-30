@@ -1,5 +1,18 @@
 # @the-rabbit-hole/eslint-config
 
+## v0.4.2 - 2026-06-30
+
+### What Changed 👀
+
+#### 🧩 Dependency Updates
+
+- chore(deps): bump the production-dependencies group with 2 updates @[dependabot[bot]](https://github.com/apps/dependabot) (#29)
+- chore(deps-dev): bump the development-dependencies group across 1 directory with 7 updates @[dependabot[bot]](https://github.com/apps/dependabot) (#33)
+
+### Extra
+
+**Full Changelog**: https://github.com/the-rabbit-hole-tech/eslint-config/compare/v0.4.1...v0.4.2
+
 ## v0.4.1 - 2026-06-13
 
 ### What Changed 👀
