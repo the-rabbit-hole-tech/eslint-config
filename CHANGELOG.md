@@ -1,5 +1,21 @@
 # @the-rabbit-hole/eslint-config
 
+## v0.5.0 - 2026-06-30
+
+### What Changed 👀
+
+#### 🚀 Features
+
+- feat: add opt-in eslintTypedoc extend, pin Prettier, and upgrade deps @Bugs5382 (#48)
+
+#### 🧩 Dependency Updates
+
+- feat: add opt-in eslintTypedoc extend, pin Prettier, and upgrade deps @Bugs5382 (#48)
+
+### Extra
+
+**Full Changelog**: https://github.com/the-rabbit-hole-tech/eslint-config/compare/v0.4.2...v0.5.0
+
 ## v0.4.2 - 2026-06-30
 
 ### What Changed 👀
