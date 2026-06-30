@@ -30,19 +30,12 @@ export const eslintUnicorn: Linter.Config = {
   ...eslintPluginUnicorn.configs.recommended,
   rules: {
     ...eslintPluginUnicorn.configs.recommended.rules,
-    // unicorn v69 added `consistent-boolean-name` to `recommended` at the
-    // error level, forcing every boolean to start with is/has/should/etc.
-    // That would turn existing, well-named booleans across consumer projects
-    // into hard errors on a routine upgrade, so it is disabled here and left
-    // as a deliberate opt-in rather than shipped silently.
-    "unicorn/consistent-boolean-name": "off",
     "unicorn/filename-case": [
       "warn",
       {
         case: "camelCase",
-        // Permit the `__dunder__` directory convention (`__tests__`,
-        // `__mocks__`, `__snapshots__`) that unicorn v69 began flagging when
-        // it started checking directory segments.
+        // Permit the `__dunder__` directory convention
+        // (`__tests__`, `__mocks__`, `__snapshots__`).
         ignore: [/^__\w+__$/u],
       },
     ],
