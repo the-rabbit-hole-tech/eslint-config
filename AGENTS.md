@@ -7,9 +7,15 @@ hook-enforced rules). Keep this file current when the build, layout, or public A
 
 `@the-rabbit-hole/eslint-config` is the shared, flat-config ESLint preset used across the
 `@the-rabbit-hole` projects (and usable publicly). It ships a single factory, `createESLintConfig`,
-that composes a curated set of plugin configs (TypeScript, React, jsx-a11y, unicorn, perfectionist,
-prettier, testing-library, storybook) and lets a consumer disable bundled extends, enable opt-in
-extends, and merge/override rules. It is published to npm as dual ESM/CJS with type declarations.
+that composes a curated set of plugin configs and lets a consumer disable default-on extends, enable
+opt-in extends, and merge/override rules. It is published to npm as dual ESM/CJS with type
+declarations.
+
+Extends split into two groups (see `baseExtendsMap` / `optInExtendsMap` in `src/index.ts`):
+
+- **Default-on** (every consumer): TypeScript, React, unicorn, perfectionist, prettier.
+- **Opt-in** (off unless named in `enable`): jsx-a11y, testing-library, storybook, typedoc — each
+  targets React/test/doc-specific code, so a plain Node library does not inherit them.
 
 ## Using eslint-config
 
@@ -18,7 +24,8 @@ The public surface is the entry point `@the-rabbit-hole/eslint-config`:
 - `default` export — the ready-made config (all base extends on).
 - `createESLintConfig(options?)` — the factory. Options:
   - `disableExtends` — keys of base (default-on) extends to remove.
-  - `enable` — keys of opt-in (default-off) extends to add; currently `eslintTypedoc`.
+  - `enable` — keys of opt-in (default-off) extends to add: `eslintA11y`, `eslintStorybook`,
+    `eslintTesting`, `eslintTypedoc`.
   - `rules` — rules merged on top of the bundled defaults; a key that collides with a bundled
     default replaces it and logs an info line.
 - `globalIgnoresArray` — the shared ignore patterns.

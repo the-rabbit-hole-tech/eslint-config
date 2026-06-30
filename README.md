@@ -48,11 +48,11 @@ Use the named `createESLintConfig` factory to disable bundled extends, add new r
 import { createESLintConfig } from "@the-rabbit-hole/eslint-config";
 
 export default createESLintConfig({
-  // Drop bundled extends you don't want
-  disableExtends: ["eslintReact", "eslintA11y", "eslintStorybook"],
+  // Drop default-on extends you don't want
+  disableExtends: ["eslintReact"],
 
   // Turn on opt-in extends that are off by default
-  enable: ["eslintTypedoc"],
+  enable: ["eslintA11y", "eslintTypedoc"],
 
   // Add your own rules — or override bundled ones
   rules: {
@@ -74,40 +74,48 @@ If a key in `rules` matches a rule the package sets by default, an info line is 
 
 Adding rules the package does not set is silent — no message.
 
-#### Available `disableExtends` keys
+#### Available `disableExtends` keys (default-on extends)
 
-`eslintA11y` · `eslintPerfectionist` · `eslintPrettier` · `eslintReact` · `eslintStorybook` · `eslintTesting` · `eslintTypescript` · `eslintUnicorn`
+`eslintPerfectionist` · `eslintPrettier` · `eslintReact` · `eslintTypescript` · `eslintUnicorn`
 
 #### Opt-in extends (`enable`)
 
-These are **off by default** and only applied when named in `enable`:
+These are **off by default** and only applied when named in `enable`. They target a specific kind of project rather than every consumer, so a plain Node library never inherits rules it has no use for:
 
-* `eslintTypedoc` — enforces [TypeDoc](https://typedoc.org)/TSDoc documentation quality via [eslint-plugin-typedoc](https://github.com/Nick2bad4u/eslint-plugin-typedoc): doc-comment coverage on exported APIs (`typedoc/require-exported-doc-comment`), plus tag correctness (unknown/duplicate/empty tags, malformed inline links). It is opt-in so non-library consumers aren't forced into doc-coverage errors. Scoped to `**/*.{ts,tsx,mts,cts}`.
+* `eslintA11y` — JSX accessibility rules ([eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)), for React component code.
+* `eslintStorybook` — Storybook story linting ([eslint-plugin-storybook](https://github.com/storybookjs/eslint-plugin-storybook)).
+* `eslintTesting` — Testing Library rules ([eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library)), for test files.
+* `eslintTypedoc` — [TypeDoc](https://typedoc.org)/TSDoc documentation quality ([eslint-plugin-typedoc](https://github.com/Nick2bad4u/eslint-plugin-typedoc)): doc-comment coverage on exported APIs (`typedoc/require-exported-doc-comment`) plus tag correctness (unknown/duplicate/empty tags, malformed inline links). Scoped to `**/*.{ts,tsx,mts,cts}`.
 
 ```js
 import { createESLintConfig } from "@the-rabbit-hole/eslint-config";
 
-// A library that wants its public API documentation linted:
-export default createESLintConfig({ enable: ["eslintTypedoc"] });
+// A React component library that wants a11y, Storybook, and doc-coverage:
+export default createESLintConfig({
+  enable: ["eslintA11y", "eslintStorybook", "eslintTypedoc"],
+});
 ```
+
+> **Upgrading from 0.4.x:** `eslintA11y`, `eslintTesting`, and `eslintStorybook` used to be on by default. They are now opt-in — add them to `enable` (and remove them from `disableExtends`) if your project relied on them.
 
 ## 🧩 What’s Included?
 
 This ESLint config comes pre-bundled with a set of plugins and shareable configs tailored for modern TypeScript + React projects:
 
-### Plugins
+### Default plugins (on by default)
 
 * [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) ⚛️ — React best practices
-* [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y) ♿️ — Accessibility rules for JSX
-* [eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library) 🧪 — Testing Library linting
-* [eslint-plugin-storybook](https://github.com/storybookjs/eslint-plugin-storybook) 📖 — Storybook linting
 * [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier) 🎨 — Run Prettier as an ESLint rule
 * [eslint-plugin-perfectionist](https://perfectionist.dev) 🪄 — Enforces sorting and consistency
 * [eslint-plugin-unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn) 🦄— Massive rules for good code
+* [typescript-eslint](https://typescript-eslint.io) 🟦 — TypeScript linting
 
-### Opt-in plugins
+### Opt-in plugins (`enable`)
 
-* [eslint-plugin-typedoc](https://github.com/Nick2bad4u/eslint-plugin-typedoc) 📚 — TypeDoc/TSDoc documentation quality (enable with `enable: ["eslintTypedoc"]`)
+* [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y) ♿️ — Accessibility rules for JSX (`enable: ["eslintA11y"]`)
+* [eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library) 🧪 — Testing Library linting (`enable: ["eslintTesting"]`)
+* [eslint-plugin-storybook](https://github.com/storybookjs/eslint-plugin-storybook) 📖 — Storybook linting (`enable: ["eslintStorybook"]`)
+* [eslint-plugin-typedoc](https://github.com/Nick2bad4u/eslint-plugin-typedoc) 📚 — TypeDoc/TSDoc documentation quality (`enable: ["eslintTypedoc"]`)
 
 ## 🎨 A note on Prettier
 

@@ -61,37 +61,46 @@ describe("createESLintConfig", () => {
   });
 
   describe("disableExtends", () => {
-    it("includes every bundled extend by default", () => {
+    it("includes the default-on base extends by default", () => {
       const config = createESLintConfig() as ConfigEntry[];
-      expect(includesPlugin(config, "jsx-a11y")).toBe(true);
-      expect(includesPlugin(config, "storybook")).toBe(true);
       expect(includesPlugin(config, "typescript-eslint")).toBe(true);
       expect(includesPlugin(config, "unicorn")).toBe(true);
     });
 
-    it("removes only the entries named in disableExtends", () => {
+    it("does not include the opt-in extends by default", () => {
+      const config = createESLintConfig() as ConfigEntry[];
+      expect(includesPlugin(config, "jsx-a11y")).toBe(false);
+      expect(includesPlugin(config, "storybook")).toBe(false);
+      expect(includesPlugin(config, "typedoc")).toBe(false);
+    });
+
+    it("removes only the base entry named in disableExtends", () => {
       const config = createESLintConfig({
-        disableExtends: ["eslintStorybook", "eslintA11y"],
+        disableExtends: ["eslintUnicorn"],
       }) as ConfigEntry[];
 
-      expect(includesPlugin(config, "storybook")).toBe(false);
-      expect(includesPlugin(config, "jsx-a11y")).toBe(false);
-      expect(includesPlugin(config, "unicorn")).toBe(true);
+      expect(includesPlugin(config, "unicorn")).toBe(false);
       expect(includesPlugin(config, "typescript-eslint")).toBe(true);
     });
   });
 
   describe("enable (opt-in extends)", () => {
-    it("does not include eslintTypedoc by default", () => {
+    it("does not include any opt-in extend by default", () => {
       const config = createESLintConfig() as ConfigEntry[];
+      expect(includesPlugin(config, "jsx-a11y")).toBe(false);
+      expect(includesPlugin(config, "storybook")).toBe(false);
+      expect(includesPlugin(config, "testing-library")).toBe(false);
       expect(includesPlugin(config, "typedoc")).toBe(false);
     });
 
-    it("adds eslintTypedoc only when named in enable", () => {
+    it("adds only the opt-in extends named in enable", () => {
       const config = createESLintConfig({
-        enable: ["eslintTypedoc"],
+        enable: ["eslintA11y", "eslintTypedoc"],
       }) as ConfigEntry[];
+      expect(includesPlugin(config, "jsx-a11y")).toBe(true);
       expect(includesPlugin(config, "typedoc")).toBe(true);
+      expect(includesPlugin(config, "storybook")).toBe(false);
+      expect(includesPlugin(config, "testing-library")).toBe(false);
     });
 
     it("leaves the base extends intact when an opt-in extend is enabled", () => {

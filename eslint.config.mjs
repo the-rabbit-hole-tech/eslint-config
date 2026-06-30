@@ -23,5 +23,8 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import { createESLintConfig } from "./lib/esm/index.mjs";
 
 export default createESLintConfig({
-  disableExtends: ["eslintReact", "eslintA11y", "eslintStorybook"],
+  // eslintReact is on by default but breaks under ESLint v10 (see the
+  // integration suite); a11y/storybook/testing/typedoc are opt-in, so this
+  // config (a plain TS library) simply leaves them off.
+  disableExtends: ["eslintReact"],
 });

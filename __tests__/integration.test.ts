@@ -64,7 +64,7 @@ const hasPluginRule = (messages: Message[], prefix: string): boolean =>
 // it explicitly so the failure is visible the day it gets fixed.
 const REACT_BREAKS_ON_V10 = true;
 
-describe("integration: real ESLint run against sample code (default config minus React)", () => {
+describe("integration: real ESLint run against sample code (base config minus React)", () => {
   let eslint: ESLint;
 
   beforeAll(() => {
@@ -82,19 +82,6 @@ describe("integration: real ESLint run against sample code (default config minus
         "sample.ts",
       );
       expect(messages).toBeDefined();
-    },
-    TEST_TIMEOUT,
-  );
-
-  it(
-    "fires eslint-plugin-jsx-a11y on an <img> with no alt",
-    async () => {
-      const messages = await lint(
-        eslint,
-        'export const Bad = () => <img src="x" />;\n',
-        "Component.tsx",
-      );
-      expect(hasPluginRule(messages, "jsx-a11y/")).toBe(true);
     },
     TEST_TIMEOUT,
   );
@@ -142,8 +129,47 @@ describe("integration: real ESLint run against sample code (default config minus
   );
 
   it(
-    "fires eslint-plugin-storybook on a *.stories.tsx file",
+    "does not fire jsx-a11y, storybook, or testing-library by default",
     async () => {
+      const messages = await lint(
+        eslint,
+        'export const Bad = () => <img src="x" />;\n',
+        "Component.tsx",
+      );
+      expect(hasPluginRule(messages, "jsx-a11y/")).toBe(false);
+    },
+    TEST_TIMEOUT,
+  );
+});
+
+// jsx-a11y, storybook, and testing-library are opt-in: they fire only when
+// named in `enable`. React is disabled because it crashes on eslint v10 (see
+// REACT_BREAKS_ON_V10) and these samples are .tsx files React would load.
+describe("integration: opt-in extends fire only when enabled", () => {
+  it(
+    "fires eslint-plugin-jsx-a11y on an <img> with no alt when enabled",
+    async () => {
+      const eslint = newEslint({
+        disableExtends: ["eslintReact"],
+        enable: ["eslintA11y"],
+      });
+      const messages = await lint(
+        eslint,
+        'export const Bad = () => <img src="x" />;\n',
+        "Component.tsx",
+      );
+      expect(hasPluginRule(messages, "jsx-a11y/")).toBe(true);
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    "fires eslint-plugin-storybook on a *.stories.tsx file when enabled",
+    async () => {
+      const eslint = newEslint({
+        disableExtends: ["eslintReact"],
+        enable: ["eslintStorybook"],
+      });
       const code = [
         'export default { title: "Foo" };',
         // `storybook/no-redundant-story-name` fires when a named export
@@ -158,8 +184,12 @@ describe("integration: real ESLint run against sample code (default config minus
   );
 
   it(
-    "fires eslint-plugin-testing-library on a test file",
+    "fires eslint-plugin-testing-library on a test file when enabled",
     async () => {
+      const eslint = newEslint({
+        disableExtends: ["eslintReact"],
+        enable: ["eslintTesting"],
+      });
       const code = [
         'import { render, cleanup } from "@testing-library/react";',
         'test("x", () => { render(null); cleanup(); });',
@@ -205,17 +235,17 @@ describe("integration: eslintTypedoc opt-in extend", () => {
 
 describe("integration: option wiring with various plugins on / off", () => {
   it(
-    "disableExtends actually drops the plugin's rules at lint time",
+    "disableExtends actually drops a base plugin's rules at lint time",
     async () => {
       const eslint = newEslint({
-        disableExtends: ["eslintA11y", "eslintReact"],
+        disableExtends: ["eslintReact", "eslintUnicorn"],
       });
       const messages = await lint(
         eslint,
-        'export const Bad = () => <img src="x" />;\n',
-        "Component.tsx",
+        "export const arr = Array.from(new Set([1, 2, 3]));\n",
+        "sample.ts",
       );
-      expect(hasPluginRule(messages, "jsx-a11y/")).toBe(false);
+      expect(hasPluginRule(messages, "unicorn/")).toBe(false);
     },
     TEST_TIMEOUT,
   );
@@ -225,12 +255,9 @@ describe("integration: option wiring with various plugins on / off", () => {
     async () => {
       const eslint = newEslint({
         disableExtends: [
-          "eslintA11y",
           "eslintPerfectionist",
           "eslintPrettier",
           "eslintReact",
-          "eslintStorybook",
-          "eslintTesting",
         ],
       });
       const messages = await lint(
