@@ -35,4 +35,14 @@ export const eslintTesting = {
   ],
 };
 
+/**
+ * Register-only testing-library config: loads the plugin (so `testing-library/*`
+ * rule references resolve) without enabling any rules. See
+ * {@link ../eslintA11y!eslintA11yRegister} for the rationale.
+ * @since 0.5.2
+ */
+export const eslintTestingRegister = {
+  plugins: testingLibrary.configs["flat/react"].plugins,
+};
+
 export default eslintTesting;
