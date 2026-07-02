@@ -1,5 +1,17 @@
 # @the-rabbit-hole/eslint-config
 
+## v0.5.2 - 2026-07-02
+
+### What Changed 👀
+
+#### 🐛 Bug Fixes
+
+- fix: load jsx-a11y \& testing-library plugins (rules off) so disable directives resolve @Bugs5382 (#59)
+
+### Extra
+
+**Full Changelog**: https://github.com/the-rabbit-hole-tech/eslint-config/compare/v0.5.1...v0.5.2
+
 ## v0.5.1 - 2026-06-30
 
 ### What Changed 👀
