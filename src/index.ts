@@ -115,6 +115,10 @@ const optInExtendsMap = {
  * @since 1.0.0
  */
 const baseRules: Linter.RulesRecord = {
+  // Enforce arrow-function style: functions must be expressions (arrow
+  // functions), not declarations. A consumer that must use a declaration can
+  // override this key via createESLintConfig({ rules }).
+  "func-style": ["error", "expression"],
   "react/react-in-jsx-scope": "off",
 };
 
@@ -132,11 +136,11 @@ const baseRules: Linter.RulesRecord = {
  *   collide with a base rule will replace it; an info message is printed for
  *   each override so the consumer is aware.
  */
-export function createESLintConfig(options?: {
+export const createESLintConfig = (options?: {
   disableExtends?: (keyof typeof baseExtendsMap)[];
   enable?: (keyof typeof optInExtendsMap)[];
   rules?: Linter.RulesRecord;
-}) {
+}) => {
   const disabled = options?.disableExtends ?? [];
   const enabled = options?.enable ?? [];
   const userRules = options?.rules ?? {};
@@ -177,7 +181,7 @@ export function createESLintConfig(options?: {
       },
     },
   ]);
-}
+};
 
 /**
  * Default Config
