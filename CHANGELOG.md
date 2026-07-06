@@ -1,5 +1,17 @@
 # @the-rabbit-hole/eslint-config
 
+## v0.6.0 - 2026-07-06
+
+### What Changed 👀
+
+#### 🚀 Features
+
+- feat: enforce arrow-function style via func-style @Bugs5382 (#61)
+
+### Extra
+
+**Full Changelog**: https://github.com/the-rabbit-hole-tech/eslint-config/compare/v0.5.2...v0.6.0
+
 ## v0.5.2 - 2026-07-02
 
 ### What Changed 👀
