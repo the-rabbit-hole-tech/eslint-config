@@ -36,11 +36,13 @@ const requirePlugin = createRequire(import.meta.url);
  * skipped instead, so Node libraries never need to install it.
  * @since 1.0.0
  */
-export default function eslintStorybook(): Linter.Config[] {
+const eslintStorybook = (): Linter.Config[] => {
   try {
     const storybook = requirePlugin("eslint-plugin-storybook");
     return storybook.configs["flat/recommended"];
   } catch {
     return [];
   }
-}
+};
+
+export default eslintStorybook;
