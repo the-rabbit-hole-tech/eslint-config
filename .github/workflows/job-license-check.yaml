@@ -8,6 +8,12 @@ on:
     branches: [main]
   push:
     branches: [main]
+# One run per branch. Pushing again abandons the run that the push
+# just made irrelevant, which on a small self-hosted set is the
+# difference between a queue that drains and one that only grows.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
