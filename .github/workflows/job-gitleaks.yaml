@@ -28,11 +28,21 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install gitleaks
+        # The runners are arm64 and the runner user cannot write to
+        # /usr/local/bin, so neither the architecture nor the
+        # destination can be assumed. Both are worked out here and the
+        # destination is put on PATH for the step that follows.
         run: |
           VERSION="8.30.0"
-          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" \
-            | tar -xz -C /usr/local/bin gitleaks
-          gitleaks version
+          case "$(uname -m)" in
+            aarch64|arm64) ARCH=arm64 ;;
+            *)             ARCH=x64 ;;
+          esac
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_${ARCH}.tar.gz" \
+            | tar -xz -C "${RUNNER_TEMP}/bin" gitleaks
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/bin/gitleaks" version
       - name: Run Gitleaks
         run: |
           # Honor a repo-local .gitleaks.toml if present; scan the full tree.
