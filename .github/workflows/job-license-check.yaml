@@ -6,14 +6,25 @@ name: License Check
 on:
   pull_request:
     branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'go.mod'
+      - 'go.sum'
   push:
     branches: [main]
+# One run per branch. Pushing again abandons the run that the push
+# just made irrelevant, which on a small self-hosted set is the
+# difference between a queue that drains and one that only grows.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   npm:
     name: npm dependency licenses
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,7 +53,7 @@ jobs:
 
   go:
     name: Go dependency licenses
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     steps:
       - name: Checkout
         uses: actions/checkout@v4

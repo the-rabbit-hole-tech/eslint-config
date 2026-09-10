@@ -25,6 +25,12 @@ on:
     branches:
       - main
 
+# One run per branch, and it is left to finish. This one publishes,
+# and a publish interrupted half way through is worse than a publish
+# that waited.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 permissions:
   contents: write
   pull-requests: write
@@ -34,7 +40,7 @@ permissions:
 jobs:
   Update_Version:
     name: 🚀 Update Changelog & Prep Release
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     steps:
       - name: Create GitHub App token
         id: app-token

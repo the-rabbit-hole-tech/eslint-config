@@ -25,7 +25,7 @@ permissions:
 jobs:
   autolabel:
     name: Autolabel
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     steps:
       # Map the conventional-commit prefix in the PR title to a categorizing
       # label and apply it. Best-effort: Dependabot-triggered runs get a
@@ -63,7 +63,7 @@ jobs:
     # Run even if autolabel was skipped/failed (e.g. a Dependabot read-only
     # token); the label may already be present from the PR title or dependabot.yml.
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     permissions:
       pull-requests: read
     steps:

@@ -30,6 +30,11 @@ on:
       - reopened
       - ready_for_review
       - synchronize
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - 'LICENSE'
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -38,7 +43,7 @@ permissions:
 jobs:
   Build:
     name: 🧪 Build
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     strategy:
       matrix:
         node-version: [24.x, 'lts/*', 'latest']
@@ -87,7 +92,7 @@ jobs:
   # at config-load time here instead of shipping (regression guard for #51).
   ESLintCompat:
     name: 🧩 ESLint ${{ matrix.eslint }}.x
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     strategy:
       fail-fast: false
       matrix:

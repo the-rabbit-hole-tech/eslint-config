@@ -8,12 +8,18 @@ on:
   push:
     branches: [main]
     paths: ['.github/labels.yml']
+# One run per branch, and it is left to finish. This one publishes,
+# and a publish interrupted half way through is worse than a publish
+# that waited.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 permissions:
   issues: write
 jobs:
   labeler:
     name: Sync labels
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     steps:
       - uses: actions/checkout@v4
       - uses: crazy-max/ghaction-github-labeler@v5
