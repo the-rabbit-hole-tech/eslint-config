@@ -6,6 +6,11 @@ name: License Check
 on:
   pull_request:
     branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'go.mod'
+      - 'go.sum'
   push:
     branches: [main]
 # One run per branch. Pushing again abandons the run that the push

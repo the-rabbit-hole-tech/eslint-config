@@ -6,6 +6,11 @@ name: GoLic
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - 'LICENSE'
   push:
     branches: [main]
     paths-ignore: ['**.md']
