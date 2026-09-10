@@ -13,7 +13,7 @@ permissions:
 jobs:
   labeler:
     name: Sync labels
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     steps:
       - uses: actions/checkout@v4
       - uses: crazy-max/ghaction-github-labeler@v5

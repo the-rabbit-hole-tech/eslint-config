@@ -38,7 +38,7 @@ permissions:
 jobs:
   Build:
     name: 🧪 Build
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     strategy:
       matrix:
         node-version: [24.x, 'lts/*', 'latest']
@@ -87,7 +87,7 @@ jobs:
   # at config-load time here instead of shipping (regression guard for #51).
   ESLintCompat:
     name: 🧩 ESLint ${{ matrix.eslint }}.x
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     strategy:
       fail-fast: false
       matrix:
