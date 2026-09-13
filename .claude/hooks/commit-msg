@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# Git commit-msg hook (enforcement). Requires a Conventional Commit title and
-# rejects AI-tells or emoji anywhere in the message.
+# Git commit-msg hook (enforcement). Rejects AI-tells or emoji anywhere in the
+# message.
+#
+# Conventional Commit titles are not checked here: commitlint already does
+# that in this repo, and two implementations of one rule drift apart. This is
+# only the part commitlint has no opinion about.
+#
+# Invoked from .husky/commit-msg rather than .git/hooks/, because husky points
+# core.hooksPath at .husky/_ and git therefore ignores .git/hooks entirely --
+# which is why the machine's global hook never ran here and an attribution
+# trailer walked straight in.
 set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 # shellcheck source=/dev/null
 source "$ROOT/.claude/hooks/lib.sh"
 
 msg_file="$1"
-title="$(head -1 "$msg_file")"
-
-if ! printf '%s' "$title" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._-]+\))?!?: .+'; then
-  echo "commit-msg: title must be a Conventional Commit: type(scope)?: description" >&2
-  echo "  valid types: feat fix docs style refactor perf test build ci chore revert" >&2
-  echo "  got: $title" >&2
-  exit 1
-fi
 
 tells="$(gov_find_text_tells < "$msg_file")"
 emoji="$(gov_find_emoji < "$msg_file")"

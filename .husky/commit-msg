@@ -1,0 +1,2 @@
+npx --no-install commitlint --edit "$1"
+.claude/hooks/commit-msg "$1"
