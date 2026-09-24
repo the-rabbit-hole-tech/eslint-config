@@ -44,6 +44,9 @@ laziness when adding extends whose plugins have heavy or optional load-time impo
 - `__tests__/integration.test.ts` — real `ESLint` runs that assert specific plugin rules fire (or
   don't) for sample code. Note the documented `eslint-plugin-react` + ESLint v10 incompatibility,
   which keeps the React rule explicitly skipped until upstream ships a fix.
+- `__tests__/package.test.ts` — builds, then runs `npm pack --dry-run --json` and fails if the
+  tarball lacks an entry point or contains a `.map` file. The build keeps source maps in `lib/`
+  for local debugging; the `"!lib/**/*.map"` entry in `files` keeps them out of the package.
 
 ## Build, test, lint
 
