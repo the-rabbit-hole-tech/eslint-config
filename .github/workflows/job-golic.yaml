@@ -6,6 +6,9 @@ name: GoLic
 on:
   pull_request:
     branches: [main]
+    # edited is here so retargeting a stacked PR onto main starts CI. Jobs
+    # skip edited events that did not change the base (title/body edits).
+    types: [opened, synchronize, reopened, edited]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -14,14 +17,17 @@ on:
   push:
     branches: [main]
     paths-ignore: ['**.md']
+# One run per PR per workflow: a new push cancels the older PR run. Pushes to
+# main are never cancelled, so every main commit keeps a result.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}${{ github.event.action == 'edited' && github.event.changes.base == null && format('-edit-{0}', github.run_id) || '' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 permissions:
   contents: read
 jobs:
   golic:
-    name: 🔏 License headers
+    name: 🔏 License headers${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
+    if: github.event.action != 'edited' || github.event.changes.base != null
     runs-on: arc-runner-set
     steps:
       - name: Checkout
