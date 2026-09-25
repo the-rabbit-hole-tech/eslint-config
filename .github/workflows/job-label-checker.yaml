@@ -49,7 +49,6 @@ jobs:
           label=""
           case "$TITLE" in
             *"!:"*|*"BREAKING CHANGE"*|*"BREAKING-CHANGE"*) label="breaking" ;;
-            feat\(*\)!:*|feat!:*)                            label="breaking" ;;
             feat:*|feat\(*\):*)                              label="enhancement" ;;
             fix:*|fix\(*\):*)                                label="fix" ;;
             perf:*|perf\(*\):*)                              label="performance" ;;

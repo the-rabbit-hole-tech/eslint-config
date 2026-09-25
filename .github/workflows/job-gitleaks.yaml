@@ -50,6 +50,6 @@ jobs:
       - name: Run Gitleaks
         run: |
           # Honor a repo-local .gitleaks.toml if present; scan the full tree.
-          config_arg=""
-          [ -f .gitleaks.toml ] && config_arg="--config .gitleaks.toml"
-          gitleaks detect --source . --redact --verbose --no-banner $config_arg
+          config_args=()
+          [ -f .gitleaks.toml ] && config_args=(--config .gitleaks.toml)
+          gitleaks detect --source . --redact --verbose --no-banner "${config_args[@]}"
