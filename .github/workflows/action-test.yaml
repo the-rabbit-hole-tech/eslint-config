@@ -62,9 +62,6 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts --legacy-peer-deps
 
-      - name: Lint
-        run: npm run lint
-
       - name: Run Tests
         run: |
           npm test
@@ -72,6 +69,12 @@ jobs:
       - name: Run Build
         run: |
           npm run build
+
+      # eslint.config.mjs lints this repo with its own built config
+      # (./lib/esm/index.mjs), so on a fresh checkout ESLint cannot load
+      # until the build has run.
+      - name: Lint
+        run: npm run lint
 
       - name: Upload build artifact
         if: matrix.node-version == 'lts/*'
