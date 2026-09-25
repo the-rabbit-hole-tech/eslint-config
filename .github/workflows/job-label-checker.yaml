@@ -15,16 +15,21 @@ name: Label Checker
 # time; this job is what guarantees a categorizing label on every PR.
 on:
   pull_request:
-    types: [opened, reopened, edited, synchronize]
+    branches: [main]
+    # edited is here so an edit re-runs the title and label checks, and so
+    # retargeting a stacked PR onto main runs them.
+    types: [opened, synchronize, reopened, edited]
+# One run per PR: a newer push, edit or label change cancels the older run,
+# which was checking a title or label set that no longer applies.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 permissions:
   contents: read
   pull-requests: write
 jobs:
   autolabel:
-    name: Autolabel
+    name: 🏷️ Autolabel
     runs-on: arc-runner-set
     steps:
       # Map the conventional-commit prefix in the PR title to a categorizing
@@ -43,7 +48,6 @@ jobs:
           label=""
           case "$TITLE" in
             *"!:"*|*"BREAKING CHANGE"*|*"BREAKING-CHANGE"*) label="breaking" ;;
-            feat\(*\)!:*|feat!:*)                            label="breaking" ;;
             feat:*|feat\(*\):*)                              label="enhancement" ;;
             fix:*|fix\(*\):*)                                label="fix" ;;
             perf:*|perf\(*\):*)                              label="performance" ;;
@@ -58,7 +62,7 @@ jobs:
           gh api -X POST "repos/$REPO/issues/$PR/labels" -f "labels[]=$label" >/dev/null
 
   categorizing-label:
-    name: Categorizing label present
+    name: 🏷️ Categorizing label present
     needs: [autolabel]
     # Run even if autolabel was skipped/failed (e.g. a Dependabot read-only
     # token); the label may already be present from the PR title or dependabot.yml.

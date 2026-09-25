@@ -4,27 +4,36 @@ name: PR Checks
 # diff, and a PR body that follows the template + references an issue.
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    branches: [main]
+    # edited is here so retargeting a stacked PR onto main starts CI, and so
+    # a title or body edit re-runs the title and body checks. The diff-based
+    # job skips edited events that did not change the base.
+    types: [opened, synchronize, reopened, edited]
+# One run per PR per workflow: a new push cancels the older PR run. A title
+# or body edit gets its own group, so its run never cancels real CI.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}${{ github.event.action == 'edited' && github.event.changes.base == null && format('-edit-{0}', github.run_id) || '' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 permissions:
   contents: read
   pull-requests: read
 jobs:
   pr-title:
-    name: PR Title
+    name: 📝 PR Title
     runs-on: arc-runner-set
     steps:
-      - uses: amannn/action-semantic-pull-request@v5
+      - name: Check PR title
+        uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   pr-hygiene:
-    name: PR Hygiene
+    name: 🧼 PR Hygiene${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
+    if: github.event.action != 'edited' || github.event.changes.base != null
     runs-on: arc-runner-set
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Scan changed files
@@ -55,7 +64,7 @@ jobs:
           [ "$fail" -eq 0 ] || { echo "pr-hygiene: remove the above before merging."; exit 1; }
 
   pr-body:
-    name: PR Body
+    name: 📄 PR Body
     # Dependabot PRs have no template body or issue reference; skip them so the
     # body check does not block their auto-merge.
     if: github.actor != 'dependabot[bot]'

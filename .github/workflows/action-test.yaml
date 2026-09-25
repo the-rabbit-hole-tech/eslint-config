@@ -23,32 +23,36 @@ on:
   workflow_dispatch:
   workflow_call:
   pull_request:
-    branches:
-      - "**"
-    types:
-      - opened
-      - reopened
-      - ready_for_review
-      - synchronize
+    branches: [main]
+    # edited is here so retargeting a stacked PR onto main starts CI. Jobs
+    # skip edited events that did not change the base (title/body edits).
+    types: [opened, synchronize, reopened, edited, ready_for_review]
     paths-ignore:
       - '**.md'
       - 'docs/**'
       - '.github/**'
       - 'LICENSE'
+# One run per PR per workflow: a new push cancels the older PR run. Pushes to
+# main are never cancelled, so every main commit keeps a result.
+# The fixed `test` segment keeps this group apart from a caller's: a
+# reusable workflow sees the caller's github.workflow, and a shared group
+# between the two is a deadlock that cancels the run.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-test-${{ github.event.pull_request.number || github.ref }}${{ github.event.action == 'edited' && github.event.changes.base == null && format('-edit-{0}', github.run_id) || '' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 permissions:
   contents: read
 jobs:
   Build:
-    name: 🧪 Build
+    name: 🧪 Build${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
+    if: github.event.action != 'edited' || github.event.changes.base != null
     runs-on: arc-runner-set
     strategy:
       matrix:
         node-version: [24.x, 'lts/*', 'latest']
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
 
       - name: Generate lockfile
         run: npm install --package-lock-only --ignore-scripts --legacy-peer-deps
@@ -94,19 +98,22 @@ jobs:
   # run real ESLint, so a bundled plugin that drops support for one major fails
   # at config-load time here instead of shipping (regression guard for #51).
   ESLintCompat:
-    name: 🧩 ESLint ${{ matrix.eslint }}.x
+    name: 🧩 ESLint ${{ matrix.eslint }}.x${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
+    if: github.event.action != 'edited' || github.event.changes.base != null
     runs-on: arc-runner-set
     strategy:
       fail-fast: false
       matrix:
         eslint: ['9', '10']
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
 
       - name: Generate lockfile
         run: npm install --package-lock-only --ignore-scripts --legacy-peer-deps
 
-      - uses: actions/setup-node@v6
+      - name: Setup Node
+        uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
