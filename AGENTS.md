@@ -49,7 +49,7 @@ laziness when adding extends whose plugins have heavy or optional load-time impo
 
 - Build: `npm run build` (tsdown → `lib/` ESM+CJS+d.ts).
 - Test: `npm test` (vitest). Integration tests run real ESLint; no external services.
-- Lint: `npm run lint` (`eslint | snazzy`); `npm run lint:fix` to autofix.
+- Lint: `npm run lint` (`eslint`, exits non-zero on any error); `npm run lint:fix` to autofix.
 - Package hygiene: `npm run lint:npm` (npmPkgJsonLint) and `npx sort-package-json`.
 - License headers: `task golic-run -- ...` (golic verifies the MIT header on every source file in
   CI; the copyright holder is configured as `2026 Shane` in `Taskfile.yaml`).
