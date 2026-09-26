@@ -1,4 +1,6 @@
-# 🐇 ESLint Config – @the-rabbit-hole
+# ESLint Config – @the-rabbit-hole 🐇
+
+> 🧹 A shared ESLint configuration used across all the rabbit hole projects.
 
 ![npm version](https://img.shields.io/npm/v/@the-rabbit-hole/eslint-config?style=for-the-badge&logo=npm&label=version)
 ![npm downloads](https://img.shields.io/npm/dm/@the-rabbit-hole/eslint-config?style=for-the-badge&logo=npm&label=downloads)
@@ -27,7 +29,7 @@ yarn add -D eslint @the-rabbit-hole/eslint-config
 
 # with pnpm
 pnpm add -D eslint @the-rabbit-hole/eslint-config
-````
+```
 
 ## ⚙️ Usage
 
@@ -40,7 +42,7 @@ export default eslintConfig;
 
 That’s it! 🚀
 
-### 🛠 Customizing
+### Customizing
 
 Use the named `createESLintConfig` factory to disable bundled extends, add new rules, or override the package's defaults:
 
@@ -96,7 +98,7 @@ export default createESLintConfig({
 });
 ```
 
-> **Upgrading from 0.4.x:** `eslintA11y`, `eslintTesting`, and `eslintStorybook` used to be on by default. They are now opt-in — add them to `enable` (and remove them from `disableExtends`) if your project relied on them.
+> ⚠️ **Upgrading from 0.4.x:** `eslintA11y`, `eslintTesting`, and `eslintStorybook` used to be on by default. They are now opt-in — add them to `enable` (and remove them from `disableExtends`) if your project relied on them.
 
 ## 🧩 What’s Included?
 
@@ -104,18 +106,18 @@ This ESLint config comes pre-bundled with a set of plugins and shareable configs
 
 ### Default plugins (on by default)
 
-* [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) ⚛️ — React best practices
-* [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier) 🎨 — Run Prettier as an ESLint rule
-* [eslint-plugin-perfectionist](https://perfectionist.dev) 🪄 — Enforces sorting and consistency
-* [eslint-plugin-unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn) 🦄— Massive rules for good code
-* [typescript-eslint](https://typescript-eslint.io) 🟦 — TypeScript linting
+* ⚛️ **[eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react)** — React best practices
+* 🎨 **[eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier)** — Run Prettier as an ESLint rule
+* 🪄 **[eslint-plugin-perfectionist](https://perfectionist.dev)** — Enforces sorting and consistency
+* 🦄 **[eslint-plugin-unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn)** — Massive rules for good code
+* 🟦 **[typescript-eslint](https://typescript-eslint.io)** — TypeScript linting
 
 ### Opt-in plugins (`enable`)
 
-* [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y) ♿️ — Accessibility rules for JSX (`enable: ["eslintA11y"]`)
-* [eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library) 🧪 — Testing Library linting (`enable: ["eslintTesting"]`)
-* [eslint-plugin-storybook](https://github.com/storybookjs/eslint-plugin-storybook) 📖 — Storybook linting (`enable: ["eslintStorybook"]`)
-* [eslint-plugin-typedoc](https://github.com/Nick2bad4u/eslint-plugin-typedoc) 📚 — TypeDoc/TSDoc documentation quality (`enable: ["eslintTypedoc"]`)
+* ♿️ **[eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)** — Accessibility rules for JSX (`enable: ["eslintA11y"]`)
+* 🧪 **[eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library)** — Testing Library linting (`enable: ["eslintTesting"]`)
+* 📖 **[eslint-plugin-storybook](https://github.com/storybookjs/eslint-plugin-storybook)** — Storybook linting (`enable: ["eslintStorybook"]`)
+* 📚 **[eslint-plugin-typedoc](https://github.com/Nick2bad4u/eslint-plugin-typedoc)** — TypeDoc/TSDoc documentation quality (`enable: ["eslintTypedoc"]`)
 
 ## 🎨 A note on Prettier
 
