@@ -57,6 +57,23 @@ laziness when adding extends whose plugins have heavy or optional load-time impo
 - License headers: `task golic-run -- ...` (golic verifies the MIT header on every source file in
   CI; the copyright holder is configured as `2026 Shane` in `Taskfile.yaml`).
 
+## CI
+
+Every job runs on the self-hosted `arc-runner-set` runners and sets a `timeout-minutes`.
+
+- Pull requests only, and never while the PR is a draft: CI starts when the PR is marked ready.
+  Nothing reruns on the push to `main` after a squash merge, because the PR run already tested
+  the tree being merged.
+- **PR Checks** (`job-pr-checks.yaml`) is one job whose steps are the PR title, PR body, hygiene,
+  gitleaks and categorizing-label checks. It is the only workflow that reruns when a PR's title
+  or body is edited.
+- **Test** (`action-test.yaml`) builds, tests and lints on three Node versions and against each
+  supported ESLint major. **GoLic** checks license headers. **License Check** checks npm
+  dependency licenses, and only runs when `package.json` or the lockfile changes.
+- On `main`, **Release Manager** prepares the changelog and version, and **Label Sync** runs when
+  `.github/labels.yml` changes. **Release and Publish** runs Test again and then publishes to npm
+  when a release is published.
+
 ## Conventions and gotchas
 
 - See `CLAUDE.md` for the branch/commit/PR rules; they are enforced by the git hooks in

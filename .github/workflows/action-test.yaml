@@ -24,29 +24,34 @@ on:
   workflow_call:
   pull_request:
     branches: [main]
-    # edited is here so retargeting a stacked PR onto main starts CI. Jobs
-    # skip edited events that did not change the base (title/body edits).
-    types: [opened, synchronize, reopened, edited, ready_for_review]
+    # Pull requests only, and not while the PR is a draft. There is no push
+    # trigger: the PR run already tested the tree being merged, so nothing
+    # reruns on push to main. Release and Publish still calls this workflow
+    # (workflow_call) before it publishes.
+    types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       - '**.md'
       - 'docs/**'
       - '.github/**'
       - 'LICENSE'
-# One run per PR per workflow: a new push cancels the older PR run. Pushes to
-# main are never cancelled, so every main commit keeps a result.
+# One run per PR per workflow: a new push cancels the older PR run. A run
+# called by Release and Publish is never cancelled.
 # The fixed `test` segment keeps this group apart from a caller's: a
 # reusable workflow sees the caller's github.workflow, and a shared group
 # between the two is a deadlock that cancels the run.
 concurrency:
-  group: ${{ github.workflow }}-test-${{ github.event.pull_request.number || github.ref }}${{ github.event.action == 'edited' && github.event.changes.base == null && format('-edit-{0}', github.run_id) || '' }}
+  group: ${{ github.workflow }}-test-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 permissions:
   contents: read
 jobs:
   Build:
-    name: 🧪 Build${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
-    if: github.event.action != 'edited' || github.event.changes.base != null
+    name: 🧪 Build
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: arc-runner-set
+    # Three Node versions on the arm64 runners: install, test, build and lint
+    # each take a few minutes there.
+    timeout-minutes: 20
     strategy:
       matrix:
         node-version: [24.x, 'lts/*', 'latest']
@@ -98,9 +103,10 @@ jobs:
   # run real ESLint, so a bundled plugin that drops support for one major fails
   # at config-load time here instead of shipping (regression guard for #51).
   ESLintCompat:
-    name: 🧩 ESLint ${{ matrix.eslint }}.x${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
-    if: github.event.action != 'edited' || github.event.changes.base != null
+    name: 🧩 ESLint ${{ matrix.eslint }}.x
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: arc-runner-set
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:

@@ -1,81 +1,47 @@
 name: License Check
-# Fail if a 3rd-party dependency carries a license outside the allowlist.
-# Ecosystem-aware: each job early-exits if its manifest is absent. hashFiles()
-# is NOT valid in a job-level `if` (no workspace before checkout), so the
-# manifest check lives in a step. No SAST/vuln scanning (deliberately out of scope).
+# Fail if a 3rd-party npm dependency carries a license outside the allowlist.
+# No SAST/vuln scanning (deliberately out of scope).
+#
+# npm only: this is an npm package with no go.mod, so the Go job the shared
+# template carried is gone. It started a runner on every run just to find no
+# go.mod and skip.
+#
+# Pull requests that change package.json or the lockfile only, and not while
+# the PR is a draft. There is no rerun on push to main: the PR run already
+# checked the dependency set being merged.
 on:
   pull_request:
     branches: [main]
-    # edited is here so retargeting a stacked PR onto main starts CI. Jobs
-    # skip edited events that did not change the base (title/body edits).
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'package.json'
       - 'package-lock.json'
-      - 'go.mod'
-      - 'go.sum'
-  push:
-    branches: [main]
-# One run per PR per workflow: a new push cancels the older PR run. Pushes to
-# main are never cancelled, so every main commit keeps a result.
+# One run per PR: a new push cancels the older run.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}${{ github.event.action == 'edited' && github.event.changes.base == null && format('-edit-{0}', github.run_id) || '' }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   npm:
-    name: 📦 npm dependency licenses${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
-    if: github.event.action != 'edited' || github.event.changes.base != null
+    name: 📦 npm dependency licenses
+    if: github.event.pull_request.draft == false
     runs-on: arc-runner-set
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Detect package.json
-        id: manifest
-        run: |
-          if [ -f package.json ]; then echo "found=true" >> "$GITHUB_OUTPUT"; else echo "found=false (skipping)"; echo "found=false" >> "$GITHUB_OUTPUT"; fi
-
       - name: Setup Node
-        if: steps.manifest.outputs.found == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
       - name: Install dependencies
-        if: steps.manifest.outputs.found == 'true'
         run: npm install --ignore-scripts --no-audit --no-fund
 
       - name: Check dependency licenses
-        if: steps.manifest.outputs.found == 'true'
         run: |
           npx --yes license-checker-rseidelsohn \
             --production --excludePrivatePackages \
             --onlyAllow "MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;CC0-1.0;Unlicense;BlueOak-1.0.0;Python-2.0;MPL-2.0;CC-BY-4.0"
-
-  go:
-    name: 🐹 Go dependency licenses${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
-    if: github.event.action != 'edited' || github.event.changes.base != null
-    runs-on: arc-runner-set
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Detect go.mod
-        id: manifest
-        run: |
-          if [ -f go.mod ]; then echo "found=true" >> "$GITHUB_OUTPUT"; else echo "found=false (skipping)"; echo "found=false" >> "$GITHUB_OUTPUT"; fi
-
-      - name: Setup Go
-        if: steps.manifest.outputs.found == 'true'
-        uses: actions/setup-go@v5
-        with:
-          go-version: 'stable'
-
-      - name: Check dependency licenses
-        if: steps.manifest.outputs.found == 'true'
-        run: |
-          go install github.com/google/go-licenses@latest
-          "$(go env GOPATH)/bin/go-licenses" check ./... \
-            --allowed_licenses=MIT,ISC,Apache-2.0,BSD-2-Clause,BSD-3-Clause,0BSD,CC0-1.0,Unlicense,MPL-2.0,CC-BY-4.0
