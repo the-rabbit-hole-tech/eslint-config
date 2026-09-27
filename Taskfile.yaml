@@ -1,6 +1,5 @@
 version: '3'
 vars:
-  VERSION: "v0.6.0"
   GOLIC_VERSION: v0.2.0
   COMMON_LIC: "2026 Shane"
   TEMPLATE_LIC: "mit"
@@ -51,17 +50,6 @@ tasks:
     cmds:
       - task: golic-run
         vars: {ACTION: remove, DRY: "true", VERBOSE: "true"}
-  update-version:
-    desc: Updates the version variable in Taskfile.yaml and package.json
-    vars:
-      NEW_VERSION: '{{.NEW_VERSION | default .VERSION_ENV | default "local"}}'
-      PKG_VERSION: '{{trimPrefix "v" .NEW_VERSION}}'
-    preconditions:
-      - sh: command -v yq
-        msg: "yq is not installed. Install it via 'brew install yq' or the GitHub Action."
-    cmds:
-      - yq -i '.vars.VERSION = "{{.NEW_VERSION}}"' "{{.TASKFILE_DIR}}/Taskfile.yaml"
-      - npm pkg set version={{.PKG_VERSION}}
   golic-run:
     internal: true
     cmds:
