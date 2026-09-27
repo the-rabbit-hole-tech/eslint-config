@@ -1,42 +1,74 @@
 name: PR Checks
 # Authoritative CI enforcement of what the local hooks check (hooks are advisory
-# and may not be installed): conventional PR title, no AI-tells/emoji in the
-# diff, and a PR body that follows the template + references an issue.
+# and may not be installed): conventional PR title, a PR body that follows the
+# template and references an issue, no AI-tells/emoji in the diff, the gitleaks
+# secret scan, and a categorizing label on the PR.
+#
+# ONE job, with each check as a step. Each of these checks does a few seconds of
+# work, and GitHub bills every job for at least a full minute (on the self-hosted
+# runners every job still takes a runner slot), so six separate jobs cost six
+# where one job costs one. Every check step runs with `!cancelled()`, so a
+# failing check never hides the ones after it: the log shows every failure, and
+# the job fails if any step failed.
+#
+# Gitleaks and the Label Checker used to be workflows of their own; both are
+# steps here now.
+#
+# Draft PRs are skipped; the run happens when the PR is marked ready. This is
+# the only workflow that reacts to `edited`, so a title or body fix reruns one
+# job, not the build. An edit reruns every step, not just title and body: the
+# new result replaces the last one for the same commit, so skipping hygiene or
+# gitleaks on an edit would turn an earlier failure green.
 on:
   pull_request:
     branches: [main]
-    # edited is here so retargeting a stacked PR onto main starts CI, and so
-    # a title or body edit re-runs the title and body checks. The diff-based
-    # job skips edited events that did not change the base.
-    types: [opened, synchronize, reopened, edited]
-# One run per PR per workflow: a new push cancels the older PR run. A title
-# or body edit gets its own group, so its run never cancels real CI.
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+# One run per PR: a newer push or edit cancels the older run, which was checking
+# a title, body or tree that no longer applies.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}${{ github.event.action == 'edited' && github.event.changes.base == null && format('-edit-{0}', github.run_id) || '' }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 permissions:
   contents: read
-  pull-requests: read
+  # The autolabel step writes the categorizing label.
+  pull-requests: write
 jobs:
-  pr-title:
-    name: 📝 PR Title
+  checks:
+    name: ✅ PR Checks
+    if: github.event.pull_request.draft == false
     runs-on: arc-runner-set
+    timeout-minutes: 10
     steps:
-      - name: Check PR title
+      - name: 📝 PR Title
         uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  pr-hygiene:
-    name: 🧼 PR Hygiene${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
-    if: github.event.action != 'edited' || github.event.changes.base != null
-    runs-on: arc-runner-set
-    steps:
+      # Dependabot PRs have no template body or issue reference; skip them so
+      # the body check does not block their auto-merge.
+      - name: 📄 PR Body
+        if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          fail=0
+          printf '%s' "$BODY" | grep -qiE '(closes|fixes|resolves|refs) #[0-9]+' \
+            || { echo "PR body must reference an issue (e.g. 'Closes #12')."; fail=1; }
+          printf '%s' "$BODY" | grep -qiE '##[[:space:]]*what' \
+            || { echo "PR body must follow the template (a 'What and why' section)."; fail=1; }
+          [ "$fail" -eq 0 ] || exit 1
+
       - name: Checkout
-        uses: actions/checkout@v4
+        id: checkout
+        if: ${{ !cancelled() }}
+        uses: actions/checkout@v6
         with:
+          # Full history: hygiene diffs base..head and gitleaks scans every
+          # commit.
           fetch-depth: 0
-      - name: Scan changed files
+
+      - name: 🧼 PR Hygiene
+        if: ${{ !cancelled() && steps.checkout.outcome == 'success' }}
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
@@ -63,20 +95,111 @@ jobs:
           done < <(git diff --name-only --diff-filter=ACM "$BASE" "$HEAD")
           [ "$fail" -eq 0 ] || { echo "pr-hygiene: remove the above before merging."; exit 1; }
 
-  pr-body:
-    name: 📄 PR Body
-    # Dependabot PRs have no template body or issue reference; skip them so the
-    # body check does not block their auto-merge.
-    if: github.actor != 'dependabot[bot]'
-    runs-on: arc-runner-set
-    steps:
-      - name: Check body
+      # Secret scan, no paths filter: a secret can land in any file, docs
+      # included. Hard failure: the scan exits non-zero on a finding. It runs the
+      # gitleaks CLI directly rather than gitleaks/gitleaks-action@v2, which needs
+      # a paid GITLEAKS_LICENSE for organization-owned repos; the CLI is free
+      # everywhere and matches the `gitleaks detect` run locally via `task lint`.
+      - name: Install gitleaks
+        id: gitleaks-install
+        if: ${{ !cancelled() && steps.checkout.outcome == 'success' }}
+        # The runners are arm64 and the runner user cannot write to
+        # /usr/local/bin, so neither the architecture nor the destination can be
+        # assumed. Both are worked out here, the tarball is checked against the
+        # SHA-256 the release publishes, and the destination is put on PATH.
         env:
-          BODY: ${{ github.event.pull_request.body }}
+          GITLEAKS_VERSION: 8.30.0
+          # From gitleaks_<version>_checksums.txt. Update with the version.
+          GITLEAKS_SHA256_X64: 79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e
+          GITLEAKS_SHA256_ARM64: b4cbbb6ddf7d1b2a603088cd03a4e3f7ce48ee7fd449b51f7de6ee2906f5fa2f
         run: |
-          fail=0
-          printf '%s' "$BODY" | grep -qiE '(closes|fixes|resolves|refs) #[0-9]+' \
-            || { echo "PR body must reference an issue (e.g. 'Closes #12')."; fail=1; }
-          printf '%s' "$BODY" | grep -qiE '##[[:space:]]*what' \
-            || { echo "PR body must follow the template (a 'What and why' section)."; fail=1; }
-          [ "$fail" -eq 0 ] || exit 1
+          set -euo pipefail
+          case "$(uname -m)" in
+            aarch64|arm64) arch=arm64; sum="$GITLEAKS_SHA256_ARM64" ;;
+            *)             arch=x64;   sum="$GITLEAKS_SHA256_X64" ;;
+          esac
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_${arch}.tar.gz"
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -sSfL -o "${RUNNER_TEMP}/${tarball}" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${tarball}"
+          echo "${sum}  ${RUNNER_TEMP}/${tarball}" | sha256sum -c -
+          tar -xzf "${RUNNER_TEMP}/${tarball}" -C "${RUNNER_TEMP}/bin" gitleaks
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/bin/gitleaks" version
+
+      - name: 🔒 Gitleaks (secret scan)
+        if: ${{ !cancelled() && steps.gitleaks-install.outcome == 'success' }}
+        run: |
+          # Honor a repo-local .gitleaks.toml if present; scan the full tree.
+          # An array keeps the optional flag pair intact without word splitting.
+          args=(detect --source . --redact --verbose --no-banner)
+          if [ -f .gitleaks.toml ]; then args+=(--config .gitleaks.toml); fi
+          gitleaks "${args[@]}"
+
+      # Map the conventional-commit prefix in the PR title to a categorizing
+      # label and apply it. Best-effort (continue-on-error): Dependabot-triggered
+      # runs get a read-only GITHUB_TOKEN so the apply fails, and Dependabot
+      # already sets `dependencies`. The verify step below is authoritative.
+      #
+      # Both label steps talk to the REST API with curl rather than the gh CLI:
+      # the arc-runner-set image carries neither gh nor jq.
+      - name: 🏷️ Apply label from PR title
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Derive the label from the conventional-commit type/prefix.
+          label=""
+          case "$TITLE" in
+            *"!:"*|*"BREAKING CHANGE"*|*"BREAKING-CHANGE"*) label="breaking" ;;
+            feat:*|feat\(*\):*)                              label="enhancement" ;;
+            fix:*|fix\(*\):*)                                label="fix" ;;
+            perf:*|perf\(*\):*)                              label="performance" ;;
+            refactor:*|refactor\(*\):*)                      label="refactor" ;;
+            docs:*|docs\(*\):*)                              label="documentation" ;;
+            security:*|security\(*\):*)                      label="security" ;;
+            build:*|build\(*\):*|chore\(deps*\):*)           label="dependencies" ;;
+            ci:*|ci\(*\):*|test:*|test\(*\):*|style:*|style\(*\):*|chore:*|chore\(*\):*) label="skip-changelog" ;;
+            *) echo "PR title is not a recognized conventional-commit type; leaving labels alone."; exit 0 ;;
+          esac
+          echo "Applying label: $label"
+          curl -sf -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/issues/$PR/labels" \
+            -d "{\"labels\":[\"$label\"]}" >/dev/null
+
+      # Poll the LIVE labels via the API rather than the trigger payload. The
+      # step above applies the label with the default GITHUB_TOKEN; that write
+      # takes a moment to be visible, and the event payload this run was
+      # triggered with never carries it. Retrying closes that race.
+      - name: ✅ Categorizing label present
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          allowed="breaking enhancement bug fix performance refactor changed deprecated removed security documentation dependencies skip-changelog"
+          for attempt in 1 2 3 4 5 6; do
+            # No jq on the image: pull the "name" fields out of the labels
+            # array with grep/sed, which every image carries.
+            labels="$(curl -sf \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/issues/$PR/labels" \
+              | grep -o '"name": *"[^"]*"' | sed -E 's/"name": *"([^"]*)"/\1/' || true)"
+            for l in $labels; do
+              for a in $allowed; do
+                if [ "$l" = "$a" ]; then echo "Found categorizing label: $l"; exit 0; fi
+              done
+            done
+            echo "No categorizing label yet (attempt $attempt/6); waiting for the autolabel step..."
+            sleep 10
+          done
+          echo "No categorizing label present. Add one of: $allowed"
+          exit 1

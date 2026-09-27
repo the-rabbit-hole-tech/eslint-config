@@ -20,6 +20,7 @@ jobs:
   labeler:
     name: Sync labels
     runs-on: arc-runner-set
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: crazy-max/ghaction-github-labeler@v5

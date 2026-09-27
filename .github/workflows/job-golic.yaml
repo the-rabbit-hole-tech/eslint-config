@@ -3,32 +3,30 @@ name: GoLic
 # tool) is run through go-task (`task license`) -- the standard runner for every
 # project. `golic inject --dry -x` fails the check if a header is missing; it never
 # modifies files. Docs (**.md) are skipped -- they carry no header.
+#
+# Pull requests only, and not while the PR is a draft. There is no rerun on
+# push to main: the PR run already checked the tree being merged.
 on:
   pull_request:
     branches: [main]
-    # edited is here so retargeting a stacked PR onto main starts CI. Jobs
-    # skip edited events that did not change the base (title/body edits).
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       - '**.md'
       - 'docs/**'
       - '.github/**'
       - 'LICENSE'
-  push:
-    branches: [main]
-    paths-ignore: ['**.md']
-# One run per PR per workflow: a new push cancels the older PR run. Pushes to
-# main are never cancelled, so every main commit keeps a result.
+# One run per PR: a new push cancels the older run.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}${{ github.event.action == 'edited' && github.event.changes.base == null && format('-edit-{0}', github.run_id) || '' }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   golic:
-    name: 🔏 License headers${{ github.event.action == 'edited' && github.event.changes.base == null && ' (edit, not run)' || '' }}
-    if: github.event.action != 'edited' || github.event.changes.base != null
+    name: 🔏 License headers
+    if: github.event.pull_request.draft == false
     runs-on: arc-runner-set
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v6
