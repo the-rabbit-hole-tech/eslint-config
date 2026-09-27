@@ -55,24 +55,11 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.26.x'
-
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-          # Authenticate setup-task's GitHub API calls; without this it uses
-          # the anonymous rate limit and fails with "API rate limit exceeded".
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 📝 Release Drafter (Anticipate Version)
         id: drafter
         uses: release-drafter/release-drafter@v7
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Detect releasable changes
         id: releasable
@@ -88,10 +75,9 @@ jobs:
             echo "yes=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Set Release Version
+      - name: 🔢 Bump Package Version
         if: steps.releasable.outputs.yes == 'true'
-        run: |
-          task update-version NEW_VERSION=v${{ steps.drafter.outputs.resolved_version }}
+        run: npm version "v${{ steps.drafter.outputs.resolved_version }}" --no-git-tag-version --allow-same-version
 
       - name: 📤 Run Changelog Action
         if: steps.releasable.outputs.yes == 'true'
