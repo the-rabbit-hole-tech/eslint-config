@@ -21,8 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, renameSync, rmSync } from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 // Guards the published tarball contents (#71). The build keeps source maps in
 // lib/ for local debugging; the "files" field in package.json must keep them
@@ -66,5 +68,115 @@ describe("npm package contents", () => {
 
   it("ships no source maps", () => {
     expect(packedPaths.filter((file) => file.endsWith(".map"))).toEqual([]);
+  });
+});
+
+// Loads the packed tarball the way a consumer would, through both export
+// conditions. The tarball is unpacked into a throwaway node_modules inside the
+// repo's own node_modules, so the bundled plugins resolve from the repo's
+// install and the check runs offline. Each load runs in a fresh Node process:
+// vitest's own module loader would hide a broken CommonJS build.
+
+type LoadSummary = {
+  defaultEntries: number;
+  enabledPlugins: string[];
+  factory: string;
+  plugins: string[];
+};
+
+const PACKAGE_NAME = "@the-rabbit-hole/eslint-config";
+const OPT_IN_EXTENDS = [
+  "eslintA11y",
+  "eslintStorybook",
+  "eslintTesting",
+  "eslintTypedoc",
+];
+
+// Collects the plugin names a config registers, so the ESM and CJS loads can
+// be compared on what they actually wire up, not just on having loaded.
+const summarize = `
+const pluginNames = (config) =>
+  [...new Set(config.flatMap((entry) => Object.keys(entry.plugins ?? {})))].sort();
+const summarize = (mod) => ({
+  defaultEntries: mod.default.length,
+  enabledPlugins: pluginNames(
+    mod.createESLintConfig({ enable: ${JSON.stringify(OPT_IN_EXTENDS)} }),
+  ),
+  factory: typeof mod.createESLintConfig,
+  plugins: pluginNames(mod.default),
+});
+`;
+
+describe("packed tarball", () => {
+  let consumerDirectory = "";
+
+  const load = (script: string, inputType: "commonjs" | "module") =>
+    JSON.parse(
+      execFileSync(
+        process.execPath,
+        [`--input-type=${inputType}`, "--eval", summarize + script],
+        {
+          cwd: consumerDirectory,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+        },
+      ),
+    ) as LoadSummary;
+
+  beforeAll(() => {
+    npm(["run", "build"]);
+    const scratchRoot = path.join(repoRoot, "node_modules", ".tarball-test");
+    mkdirSync(scratchRoot, { recursive: true });
+    consumerDirectory = mkdtempSync(path.join(scratchRoot, "consumer-"));
+    const [result] = JSON.parse(
+      npm([
+        "pack",
+        "--json",
+        "--ignore-scripts",
+        "--pack-destination",
+        consumerDirectory,
+      ]),
+    ) as { filename: string }[];
+    execFileSync("tar", ["-xzf", result.filename], { cwd: consumerDirectory });
+    const installed = path.join(
+      consumerDirectory,
+      "node_modules",
+      PACKAGE_NAME,
+    );
+    mkdirSync(path.dirname(installed), { recursive: true });
+    renameSync(path.join(consumerDirectory, "package"), installed);
+  }, BUILD_TIMEOUT);
+
+  afterAll(() => {
+    if (consumerDirectory) {
+      rmSync(consumerDirectory, { force: true, recursive: true });
+    }
+  });
+
+  it("loads through the ESM import condition", () => {
+    const summary = load(
+      `const mod = await import(${JSON.stringify(PACKAGE_NAME)});
+console.log(JSON.stringify(summarize(mod)));`,
+      "module",
+    );
+    expect(summary.factory).toBe("function");
+    expect(summary.plugins).toEqual(
+      expect.arrayContaining(["prettier", "unicorn"]),
+    );
+    expect(summary.enabledPlugins).toContain("storybook");
+  });
+
+  it("loads through the CJS require condition with the same config", () => {
+    const esm = load(
+      `const mod = await import(${JSON.stringify(PACKAGE_NAME)});
+console.log(JSON.stringify(summarize(mod)));`,
+      "module",
+    );
+    const cjs = load(
+      `const mod = require(${JSON.stringify(PACKAGE_NAME)});
+console.log(JSON.stringify(summarize(mod)));`,
+      "commonjs",
+    );
+    expect(cjs).toEqual(esm);
   });
 });

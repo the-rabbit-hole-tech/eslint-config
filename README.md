@@ -42,6 +42,15 @@ export default eslintConfig;
 
 That’s it! 🚀
 
+In a CommonJS config (`eslint.config.cjs`), `require` works the same way:
+
+```js
+const { createESLintConfig } = require("@the-rabbit-hole/eslint-config");
+module.exports = createESLintConfig();
+```
+
+Some bundled plugins ship as ES modules only, so CommonJS loading needs a Node.js release that can `require()` ES modules (20.19+, 22.12+ or 24+). ESLint 10 already requires one of those.
+
 ### Customizing
 
 Use the named `createESLintConfig` factory to disable bundled extends, add new rules, or override the package's defaults:
