@@ -5,11 +5,10 @@ name: PR Checks
 # secret scan, and a categorizing label on the PR.
 #
 # ONE job, with each check as a step. Each of these checks does a few seconds of
-# work, and GitHub bills every job for at least a full minute (on the self-hosted
-# runners every job still takes a runner slot), so six separate jobs cost six
-# where one job costs one. Every check step runs with `!cancelled()`, so a
-# failing check never hides the ones after it: the log shows every failure, and
-# the job fails if any step failed.
+# work, and GitHub bills every job for at least a full minute, so six separate
+# jobs cost six where one job costs one. Every check step runs with
+# `!cancelled()`, so a failing check never hides the ones after it: the log
+# shows every failure, and the job fails if any step failed.
 #
 # Gitleaks and the Label Checker used to be workflows of their own; both are
 # steps here now.
@@ -36,7 +35,7 @@ jobs:
   checks:
     name: ✅ PR Checks
     if: github.event.pull_request.draft == false
-    runs-on: arc-runner-set
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: 📝 PR Title
@@ -103,9 +102,8 @@ jobs:
       - name: Install gitleaks
         id: gitleaks-install
         if: ${{ !cancelled() && steps.checkout.outcome == 'success' }}
-        # The runners are arm64 and the runner user cannot write to
-        # /usr/local/bin, so neither the architecture nor the destination can be
-        # assumed. Both are worked out here, the tarball is checked against the
+        # Neither the runner architecture nor a writable /usr/local/bin is
+        # assumed: both are worked out here, the tarball is checked against the
         # SHA-256 the release publishes, and the destination is put on PATH.
         env:
           GITLEAKS_VERSION: 8.30.0
@@ -141,8 +139,8 @@ jobs:
       # runs get a read-only GITHUB_TOKEN so the apply fails, and Dependabot
       # already sets `dependencies`. The verify step below is authoritative.
       #
-      # Both label steps talk to the REST API with curl rather than the gh CLI:
-      # the arc-runner-set image carries neither gh nor jq.
+      # Both label steps talk to the REST API with curl rather than the gh CLI,
+      # so they need nothing beyond curl, grep and sed on the runner.
       - name: 🏷️ Apply label from PR title
         if: ${{ !cancelled() }}
         continue-on-error: true
@@ -186,7 +184,7 @@ jobs:
         run: |
           allowed="breaking enhancement bug fix performance refactor changed deprecated removed security documentation dependencies skip-changelog"
           for attempt in 1 2 3 4 5 6; do
-            # No jq on the image: pull the "name" fields out of the labels
+            # No jq needed: pull the "name" fields out of the labels
             # array with grep/sed, which every image carries.
             labels="$(curl -sf \
               -H "Authorization: Bearer $GH_TOKEN" \
