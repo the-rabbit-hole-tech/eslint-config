@@ -60,7 +60,7 @@ laziness when adding extends whose plugins have heavy or optional load-time impo
 ## CI
 
 This is a public repo, so every job runs on GitHub-hosted runners (`runs-on: ubuntu-latest`) and
-sets a `timeout-minutes`. The retired `arc-runner-set` label is not used.
+sets a `timeout-minutes`.
 
 - Pull requests only, and never while the PR is a draft: CI starts when the PR is marked ready.
   Nothing reruns on the push to `main` after a squash merge, because the PR run already tested
