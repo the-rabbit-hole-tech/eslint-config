@@ -12,6 +12,7 @@
 
 #### 🐛 Bug Fixes
 
+- fix(build): let the CommonJS entry load under require @Bugs5382 (#81)
 - fix(build): stop shipping source maps in the npm package @Bugs5382 (#72)
 - fix(ci): let the lint script fail on ESLint errors @Bugs5382 (#69)
 
