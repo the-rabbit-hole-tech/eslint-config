@@ -32,6 +32,7 @@ import eslintTesting, { eslintTestingRegister } from "./eslintTesting";
 import eslintTypedoc from "./eslintTypedoc";
 import eslintTypescript from "./eslintTypescript";
 import eslintUnicorn from "./eslintUnicorn";
+import { warnOnPrettierDriftOnce } from "./prettierVersion";
 
 /**
  * Global Ignores
@@ -65,7 +66,10 @@ type ExtendFactory = () => Linter.Config | Linter.Config[];
 
 const baseExtendsMap = {
   eslintPerfectionist: (() => eslintPerfectionist) as ExtendFactory,
-  eslintPrettier: (() => eslintPrettier) as ExtendFactory,
+  eslintPrettier: (() => {
+    warnOnPrettierDriftOnce();
+    return eslintPrettier;
+  }) as ExtendFactory,
   eslintReact: (() => eslintReact) as ExtendFactory,
   eslintTypescript: (() => eslintTypescript.recommended) as ExtendFactory,
   eslintUnicorn: (() => eslintUnicorn) as ExtendFactory,

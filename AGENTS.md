@@ -37,6 +37,7 @@ laziness when adding extends whose plugins have heavy or optional load-time impo
 
 ## Layout
 
+- `src/prettierVersion.ts` — the prettier drift check run by the `eslintPrettier` extend.
 - `src/index.ts` — the factory, the base/opt-in extend maps, default rules, and the default export.
 - `src/eslint*.ts` — one file per bundled plugin config (e.g. `eslintTypescript.ts`,
   `eslintUnicorn.ts`, `eslintTypedoc.ts`). Each is a thin wrapper around an upstream preset.
@@ -81,6 +82,14 @@ sets a `timeout-minutes`.
   `.claude/hooks` (run `bash .claude/hooks/install.sh` once per clone).
 - This package **dogfoods its own built config** via `eslint.config.mjs`, which imports from
   `./lib/esm`. Run `npm run build` before `npm run lint` after changing `src/`.
+- Prettier drift: the exact pin described in the next bullet does not bind a consumer that lists
+  its own `prettier`. npm hoists the consumer's copy next to the plugin and nests the pinned one under this package, so the plugin formats with
+  the consumer's version. A peer entry does not help either (npm only warns and installs anyway,
+  and a peer is skipped under `--legacy-peer-deps`). `src/prettierVersion.ts` resolves prettier
+  from this package and from the plugin, and the `eslintPrettier` extend warns once per process
+  when they differ. The default export builds every base extend at import time, so the check
+  also runs for a consumer who later disables `eslintPrettier`; that is accepted, since such a
+  consumer is rare and the warning is one line.
 - `eslint-plugin-prettier` formats with whatever Prettier resolves, so Prettier is pinned as an
   **exact direct dependency** (not a floating peer) to keep formatting deterministic. Bump it
   deliberately — a Prettier change is a changelogged release.

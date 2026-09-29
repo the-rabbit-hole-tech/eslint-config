@@ -121,7 +121,17 @@ This ESLint config comes pre-bundled with a set of plugins and shareable configs
 
 ## 🎨 A note on Prettier
 
-`eslint-plugin-prettier` runs Prettier as an ESLint rule, so the **Prettier version decides the formatting**. To keep `prettier/prettier` verdicts deterministic, this package ships **Prettier as a pinned, exact dependency** rather than a floating peer — the formatter engine only changes in an intentional, changelogged release. You do **not** need to install or pin Prettier yourself; remove any `prettier` peer expectation you previously satisfied for this config.
+`eslint-plugin-prettier` runs Prettier as an ESLint rule, so the **Prettier version decides the formatting**. To keep `prettier/prettier` verdicts deterministic, this package ships **Prettier as a pinned, exact dependency** rather than a floating peer, so the formatter engine only changes in an intentional, changelogged release.
+
+If your project does not list `prettier` itself, you get the pinned version and there is nothing to do.
+
+If it does (say, for a `prettier --write` script), **pin it to the same exact version**. The plugin loads whichever Prettier npm hoists next to it, and a range like `^3.6.2` resolves to your newest 3.x instead of the pinned one, so lint results change with every Prettier release. The config checks for this when it loads and prints a warning naming both versions:
+
+```text
+[@the-rabbit-hole/eslint-config] prettier/prettier is formatting with prettier 3.9.9, but this config pins prettier 3.9.4. ...
+```
+
+The pinned version is the `prettier` entry under `dependencies` in this package's `package.json` (`npm view @the-rabbit-hole/eslint-config dependencies.prettier`).
 
 ## 🤝 Contributing
 
