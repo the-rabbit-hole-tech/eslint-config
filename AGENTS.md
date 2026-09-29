@@ -59,7 +59,8 @@ laziness when adding extends whose plugins have heavy or optional load-time impo
 
 ## CI
 
-Every job runs on the self-hosted `arc-runner-set` runners and sets a `timeout-minutes`.
+Every job runs on the org's shared self-hosted runner group (`runs-on: { group: self-hosted-private }`;
+the `arc-runner-set` label is retired) and sets a `timeout-minutes`.
 
 - Pull requests only, and never while the PR is a draft: CI starts when the PR is marked ready.
   Nothing reruns on the push to `main` after a squash merge, because the PR run already tested

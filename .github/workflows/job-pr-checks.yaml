@@ -36,7 +36,7 @@ jobs:
   checks:
     name: ✅ PR Checks
     if: github.event.pull_request.draft == false
-    runs-on: arc-runner-set
+    runs-on: { group: self-hosted-private }
     timeout-minutes: 10
     steps:
       - name: 📝 PR Title
@@ -142,7 +142,7 @@ jobs:
       # already sets `dependencies`. The verify step below is authoritative.
       #
       # Both label steps talk to the REST API with curl rather than the gh CLI:
-      # the arc-runner-set image carries neither gh nor jq.
+      # the self-hosted runner image carries neither gh nor jq.
       - name: 🏷️ Apply label from PR title
         if: ${{ !cancelled() }}
         continue-on-error: true

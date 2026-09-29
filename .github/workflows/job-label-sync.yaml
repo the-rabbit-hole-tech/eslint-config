@@ -19,7 +19,7 @@ permissions:
 jobs:
   labeler:
     name: Sync labels
-    runs-on: arc-runner-set
+    runs-on: { group: self-hosted-private }
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4

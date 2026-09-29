@@ -25,7 +25,7 @@ jobs:
   golic:
     name: 🔏 License headers
     if: github.event.pull_request.draft == false
-    runs-on: arc-runner-set
+    runs-on: { group: self-hosted-private }
     timeout-minutes: 10
     steps:
       - name: Checkout

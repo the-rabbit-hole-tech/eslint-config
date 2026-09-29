@@ -40,7 +40,7 @@ permissions:
 jobs:
   Update_Version:
     name: 🚀 Update Changelog & Prep Release
-    runs-on: arc-runner-set
+    runs-on: { group: self-hosted-private }
     timeout-minutes: 10
     steps:
       - name: Create GitHub App token
