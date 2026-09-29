@@ -20,20 +20,37 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
-import { Linter } from "eslint";
-import prettierPlugin from "eslint-plugin-prettier";
+import type { Config } from "prettier";
 
 /**
- * ESLint for Prettier Plugin
- * @since 1.0.0
+ * Shared Prettier options for the rabbit hole projects.
+ * @remarks These are the Prettier 3 defaults, written out. Every project that
+ * formatted with no Prettier config keeps its output byte for byte, and a
+ * Prettier release that changes a default cannot move the house style unless
+ * this file changes too. Use it from `package.json`:
+ *
+ * ```json
+ * { "prettier": "@the-rabbit-hole/eslint-config/prettier" }
+ * ```
+ *
+ * or spread it in a `prettier.config.mjs` to override single options.
+ * @since 0.8.0
  */
-export const eslintPrettier: Linter.Config = {
-  plugins: {
-    prettier: prettierPlugin,
-  },
-  rules: {
-    "prettier/prettier": ["error"],
-  },
+const prettierConfig: Config = {
+  arrowParens: "always",
+  bracketSameLine: false,
+  bracketSpacing: true,
+  endOfLine: "lf",
+  jsxSingleQuote: false,
+  objectWrap: "preserve",
+  printWidth: 80,
+  proseWrap: "preserve",
+  quoteProps: "as-needed",
+  semi: true,
+  singleQuote: false,
+  tabWidth: 2,
+  trailingComma: "all",
+  useTabs: false,
 };
 
-export default eslintPrettier;
+export default prettierConfig;

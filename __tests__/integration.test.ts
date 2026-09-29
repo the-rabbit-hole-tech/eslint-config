@@ -23,6 +23,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import type { Linter } from "eslint";
 
 import { ESLint } from "eslint";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { createESLintConfig } from "../src";
@@ -342,6 +343,67 @@ describe("integration: option wiring with various plugins on / off", () => {
       );
 
       info.mockRestore();
+    },
+    TEST_TIMEOUT,
+  );
+});
+
+// Formatting belongs to Prettier, run on its own. ESLint must neither format
+// nor keep any rule on that fights Prettier's output, whichever extends are on.
+describe("integration: no formatting through ESLint", () => {
+  const everyExtend = {
+    enable: [
+      "eslintA11y",
+      "eslintStorybook",
+      "eslintTesting",
+      "eslintTypedoc",
+    ] as NonNullable<Parameters<typeof createESLintConfig>[0]>["enable"],
+  };
+
+  it(
+    "leaves every rule eslint-config-prettier turns off switched off",
+    async () => {
+      const eslint = newEslint(everyExtend);
+      const resolved = (await eslint.calculateConfigForFile(
+        "Component.tsx",
+      )) as { rules: Record<string, unknown> };
+      const layoutRules = Object.keys(eslintConfigPrettier.rules);
+
+      // ESLint keeps a rule's options when it is switched off, so only the
+      // severity says whether it is on.
+      const isOn = (rule: string) => {
+        const setting = resolved.rules[rule];
+        const severity = Array.isArray(setting) ? setting[0] : setting;
+        return severity !== undefined && severity !== 0 && severity !== "off";
+      };
+
+      expect(layoutRules.filter((rule) => isOn(rule))).toEqual([]);
+      expect(Object.keys(resolved.rules)).not.toContain("prettier/prettier");
+      // unicorn ships layout rules in its recommended set; they must be
+      // present and off, not merely missing.
+      for (const rule of [
+        "unicorn/empty-brace-spaces",
+        "unicorn/no-nested-ternary",
+        "unicorn/number-literal-case",
+      ]) {
+        expect(resolved.rules).toHaveProperty([rule]);
+        expect(isOn(rule)).toBe(false);
+      }
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    "reports nothing on code that is only badly formatted",
+    async () => {
+      const eslint = newEslint({ disableExtends: ["eslintReact"] });
+      const code = [
+        "export const   value={a:1,  b:[ 1,2 ]}",
+        "export const hex=0XFF;export const empty=()=>{ }",
+        "",
+      ].join("\n");
+      const messages = await lint(eslint, code, "sample.ts");
+      expect(messages).toEqual([]);
     },
     TEST_TIMEOUT,
   );
