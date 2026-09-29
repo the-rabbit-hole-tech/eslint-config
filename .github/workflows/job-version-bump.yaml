@@ -40,7 +40,7 @@ permissions:
 jobs:
   Update_Version:
     name: 🚀 Update Changelog & Prep Release
-    runs-on: { group: self-hosted-private }
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Create GitHub App token

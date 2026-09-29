@@ -26,7 +26,7 @@ jobs:
   npm:
     name: 📦 npm dependency licenses
     if: github.event.pull_request.draft == false
-    runs-on: { group: self-hosted-private }
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout
