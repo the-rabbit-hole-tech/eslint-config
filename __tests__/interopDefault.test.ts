@@ -20,30 +20,33 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
-import { Linter } from "eslint";
-import eslintPluginUnicornImport from "eslint-plugin-unicorn";
+import { describe, expect, it } from "vitest";
 
-import { interopDefault } from "./interopDefault";
+import { interopDefault } from "../src/interopDefault";
 
-const eslintPluginUnicorn = interopDefault(eslintPluginUnicornImport);
+describe("interopDefault", () => {
+  const plugin = { configs: { recommended: {} }, rules: {} };
 
-/**
- * ESLint for Unicorn
- */
-export const eslintUnicorn: Linter.Config = {
-  ...eslintPluginUnicorn.configs.recommended,
-  rules: {
-    ...eslintPluginUnicorn.configs.recommended.rules,
-    "unicorn/filename-case": [
-      "warn",
-      {
-        case: "camelCase",
-        // Permit the `__dunder__` directory convention
-        // (`__tests__`, `__mocks__`, `__snapshots__`).
-        ignore: [/^__\w+__$/u],
-      },
-    ],
-  },
-};
+  it("unwraps a module namespace returned by require() of an ESM module", () => {
+    expect(interopDefault({ __esModule: true, default: plugin })).toBe(plugin);
+  });
 
-export default eslintUnicorn;
+  it("passes a plugin object through unchanged", () => {
+    expect(interopDefault(plugin)).toBe(plugin);
+  });
+
+  it("leaves a plugin that happens to have a default key alone", () => {
+    const withDefault = { ...plugin, default: "not a namespace" };
+    expect(interopDefault(withDefault)).toBe(withDefault);
+  });
+
+  it("leaves a namespace without a default export alone", () => {
+    const namespace = { __esModule: true, configs: {} };
+    expect(interopDefault(namespace)).toBe(namespace);
+  });
+
+  it("passes non-object values through", () => {
+    expect(interopDefault("plugin")).toBe("plugin");
+    expect(interopDefault(0)).toBe(0);
+  });
+});

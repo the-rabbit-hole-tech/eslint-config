@@ -40,7 +40,11 @@ laziness when adding extends whose plugins have heavy or optional load-time impo
 - `src/index.ts` — the factory, the base/opt-in extend maps, default rules, and the default export.
 - `src/eslint*.ts` — one file per bundled plugin config (e.g. `eslintTypescript.ts`,
   `eslintUnicorn.ts`, `eslintTypedoc.ts`). Each is a thin wrapper around an upstream preset.
+- `src/interopDefault.ts` — unwraps the module namespace the CJS build gets from `require()` of an
+  ESM-only plugin (see the gotcha below).
 - `__tests__/index.test.ts` — unit tests for option wiring (shape of the produced config).
+- `__tests__/package.test.ts` — packs the tarball, checks its file list, and loads it in fresh Node
+  processes through both `import` and `require`, asserting both builds wire up the same plugins.
 - `__tests__/integration.test.ts` — real `ESLint` runs that assert specific plugin rules fire (or
   don't) for sample code. Note the documented `eslint-plugin-react` + ESLint v10 incompatibility,
   which keeps the React rule explicitly skipped until upstream ships a fix.
@@ -84,6 +88,11 @@ sets a `timeout-minutes`.
 - `eslint-plugin-prettier` formats with whatever Prettier resolves, so Prettier is pinned as an
   **exact direct dependency** (not a floating peer) to keep formatting deterministic. Bump it
   deliberately — a Prettier change is a changelogged release.
+- The CJS build turns every plugin import into `require()`. For an ESM-only plugin that has only a
+  default export (eslint-plugin-unicorn), that returns `{ __esModule, default }` and the bundler's
+  interop passes the namespace through as the default, so `plugin.configs` is undefined and
+  `require` of the whole package throws. Wrap such imports in `interopDefault`. The tarball test
+  in `__tests__/package.test.ts` fails if a new plugin needs it.
 - Adding a plugin: create `src/eslint<Name>.ts`, register it in `baseExtendsMap` (default-on) or
   `optInExtendsMap` (default-off) in `src/index.ts`, add unit + integration coverage, and document
   it in `README.md`.

@@ -20,30 +20,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
-import { Linter } from "eslint";
-import eslintPluginUnicornImport from "eslint-plugin-unicorn";
-
-import { interopDefault } from "./interopDefault";
-
-const eslintPluginUnicorn = interopDefault(eslintPluginUnicornImport);
-
 /**
- * ESLint for Unicorn
+ * Returns a plugin's default export whether it was loaded through `import` or
+ * through the CommonJS build's `require`.
+ *
+ * @remarks In the CommonJS build, an import of an ESM-only plugin compiles to
+ * `require()`, which returns the module namespace (`{ __esModule, default }`),
+ * and the bundler's Node-style interop hands that namespace back as the
+ * default. Plugins that ship only a default export (eslint-plugin-unicorn)
+ * then have no `configs` and the whole package throws on `require`. The ESM
+ * build receives the plugin object itself and passes through unchanged.
+ * @since 0.7.0
  */
-export const eslintUnicorn: Linter.Config = {
-  ...eslintPluginUnicorn.configs.recommended,
-  rules: {
-    ...eslintPluginUnicorn.configs.recommended.rules,
-    "unicorn/filename-case": [
-      "warn",
-      {
-        case: "camelCase",
-        // Permit the `__dunder__` directory convention
-        // (`__tests__`, `__mocks__`, `__snapshots__`).
-        ignore: [/^__\w+__$/u],
-      },
-    ],
-  },
+export const interopDefault = <T>(loaded: T): T => {
+  const candidate = loaded as { __esModule?: unknown; default?: T } | undefined;
+  if (
+    candidate !== null &&
+    typeof candidate === "object" &&
+    candidate.__esModule === true &&
+    candidate.default !== undefined
+  ) {
+    return candidate.default;
+  }
+  return loaded;
 };
-
-export default eslintUnicorn;
