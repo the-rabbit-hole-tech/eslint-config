@@ -1,5 +1,28 @@
 # @the-rabbit-hole/eslint-config
 
+## v0.7.0 - 2026-09-29
+
+### What Changed 👀
+
+- ci: run every job on the self-hosted runners @Bugs5382 (#64)
+
+#### 🚀 Features
+
+- ci: align workflows with hub fixes @Bugs5382 (#76)
+
+#### 🐛 Bug Fixes
+
+- fix(build): stop shipping source maps in the npm package @Bugs5382 (#72)
+- fix(ci): let the lint script fail on ESLint errors @Bugs5382 (#69)
+
+#### 📄 Documentation
+
+- docs(readme): apply the lite emoji treatment @Bugs5382 (#75)
+
+### Extra
+
+**Full Changelog**: https://github.com/the-rabbit-hole-tech/eslint-config/compare/v0.6.0...v0.7.0
+
 ## v0.6.0 - 2026-07-06
 
 ### What Changed 👀
