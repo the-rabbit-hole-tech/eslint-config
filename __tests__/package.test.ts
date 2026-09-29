@@ -21,7 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, renameSync, rmSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -62,6 +68,10 @@ describe("npm package contents", () => {
         "lib/cjs/index.d.cts",
         "lib/esm/index.d.mts",
         "lib/esm/index.mjs",
+        "lib/cjs/prettier.cjs",
+        "lib/cjs/prettier.d.cts",
+        "lib/esm/prettier.d.mts",
+        "lib/esm/prettier.mjs",
       ]),
     );
   });
@@ -160,9 +170,8 @@ console.log(JSON.stringify(summarize(mod)));`,
       "module",
     );
     expect(summary.factory).toBe("function");
-    expect(summary.plugins).toEqual(
-      expect.arrayContaining(["prettier", "unicorn"]),
-    );
+    expect(summary.plugins).toContain("unicorn");
+    expect(summary.plugins).not.toContain("prettier");
     expect(summary.enabledPlugins).toContain("storybook");
   });
 
@@ -179,4 +188,118 @@ console.log(JSON.stringify(summarize(mod)));`,
     );
     expect(cjs).toEqual(esm);
   });
+
+  // Prettier loads a shared config by package specifier, and a CommonJS
+  // prettier.config.cjs may require() it: both must hand back the options
+  // object itself, not a module namespace wrapped around it.
+  const PRETTIER_ENTRY = `${PACKAGE_NAME}/prettier`;
+
+  it("loads ./prettier through import and require as the same options", () => {
+    const esm = execFileSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "--eval",
+        `const mod = await import(${JSON.stringify(PRETTIER_ENTRY)});
+console.log(JSON.stringify(mod.default));`,
+      ],
+      { cwd: consumerDirectory, encoding: "utf8" },
+    );
+    const cjs = execFileSync(
+      process.execPath,
+      [
+        "--input-type=commonjs",
+        "--eval",
+        `console.log(JSON.stringify(require(${JSON.stringify(PRETTIER_ENTRY)})));`,
+      ],
+      { cwd: consumerDirectory, encoding: "utf8" },
+    );
+    const options = JSON.parse(esm) as Record<string, unknown>;
+    expect(options).toMatchObject({ printWidth: 80, trailingComma: "all" });
+    expect(options).not.toHaveProperty("default");
+    expect(JSON.parse(cjs)).toEqual(options);
+  });
+
+  it("is picked up by Prettier as a shared config from package.json", () => {
+    const project = mkdtempSync(path.join(consumerDirectory, "project-"));
+    writeFileSync(
+      path.join(project, "package.json"),
+      JSON.stringify({ name: "project", prettier: PRETTIER_ENTRY }),
+    );
+    const resolved = execFileSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "--eval",
+        `const prettier = await import("prettier");
+const config = await prettier.resolveConfig(${JSON.stringify(path.join(project, "sample.ts"))});
+console.log(JSON.stringify(config));`,
+      ],
+      { cwd: project, encoding: "utf8" },
+    );
+    expect(JSON.parse(resolved)).toMatchObject({
+      printWidth: 80,
+      trailingComma: "all",
+    });
+  });
+
+  // Consumers still passing the removed "eslintPrettier" key must compile
+  // for one release. A misspelt key must still fail, which proves the check
+  // is real rather than a type that accepts any string.
+  const typeCheck = (source: string, extension: "cts" | "mts") => {
+    const file = path.join(consumerDirectory, `check.${extension}`);
+    writeFileSync(file, source);
+    try {
+      execFileSync(
+        process.execPath,
+        [
+          path.join(repoRoot, "node_modules", "typescript", "bin", "tsc"),
+          "--ignoreConfig",
+          "--noEmit",
+          "--strict",
+          "--skipLibCheck",
+          "--module",
+          "nodenext",
+          "--moduleResolution",
+          "nodenext",
+          "--types",
+          "node",
+          "--typeRoots",
+          path.join(repoRoot, "node_modules", "@types"),
+          file,
+        ],
+        { cwd: consumerDirectory, encoding: "utf8", stdio: "pipe" },
+      );
+      return "";
+    } catch (error) {
+      return String((error as { stdout?: string }).stdout ?? error);
+    }
+  };
+
+  it(
+    'type-checks disableExtends: ["eslintPrettier"] under import and require',
+    () => {
+      const esm = `import { createESLintConfig } from ${JSON.stringify(PACKAGE_NAME)};
+import prettierConfig from ${JSON.stringify(PRETTIER_ENTRY)};
+export const config = createESLintConfig({ disableExtends: ["eslintPrettier"] });
+export const width: number | undefined = prettierConfig.printWidth;
+`;
+      const cjs = `import eslintConfig = require(${JSON.stringify(PACKAGE_NAME)});
+import prettierConfig = require(${JSON.stringify(PRETTIER_ENTRY)});
+export const config = eslintConfig.createESLintConfig({ disableExtends: ["eslintPrettier"] });
+export const width: number | undefined = prettierConfig.printWidth;
+`;
+      expect(typeCheck(esm, "mts")).toBe("");
+      expect(typeCheck(cjs, "cts")).toBe("");
+      expect(
+        typeCheck(
+          `import { createESLintConfig } from ${JSON.stringify(PACKAGE_NAME)};
+export const config = createESLintConfig({ disableExtends: ["eslintPretier"] });
+`,
+          "mts",
+        ),
+      ).toContain("eslintPretier");
+    },
+    BUILD_TIMEOUT,
+  );
 });

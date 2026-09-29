@@ -66,6 +66,21 @@ jobs:
           # commit.
           fetch-depth: 0
 
+      # Formatting is checked here, by Prettier alone; ESLint no longer
+      # formats. The version is read from package.json, where it is pinned
+      # exactly, so this step and `npm run format:check` cannot disagree, and
+      # npx fetches that one package instead of a full install.
+      - name: 🎨 Prettier
+        if: ${{ !cancelled() && steps.checkout.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').devDependencies.prettier ?? ''")"
+          if ! printf '%s' "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "devDependencies.prettier must be an exact version, got '${version}'."
+            exit 1
+          fi
+          npx --yes "prettier@${version}" --check .
+
       - name: 🧼 PR Hygiene
         if: ${{ !cancelled() && steps.checkout.outcome == 'success' }}
         env:

@@ -29,10 +29,10 @@ export default defineConfig([
       skipNodeModulesBundle: true,
     },
     dts: {
-      entry: "src/index.ts",
+      entry: ["src/index.ts", "src/prettier.ts"],
       resolver: "tsc",
     },
-    entry: ["src/index.ts"],
+    entry: ["src/index.ts", "src/prettier.ts"],
     format: "esm",
     minify: true,
     outDir: "lib/esm",
@@ -50,6 +50,23 @@ export default defineConfig([
     minify: true,
     outDir: "lib/cjs",
     outputOptions: { exports: "named" },
+    sourcemap: true,
+    target: "esnext",
+  },
+  {
+    // Prettier and prettier.config.cjs files read module.exports as the
+    // options themselves, so this default-only entry must compile to
+    // `module.exports = options` (and `export =` in its declarations), not to
+    // a namespace carrying a default key.
+    cjsDefault: true,
+    clean: false,
+    deps: {
+      skipNodeModulesBundle: true,
+    },
+    entry: ["src/prettier.ts"],
+    format: "cjs",
+    minify: true,
+    outDir: "lib/cjs",
     sourcemap: true,
     target: "esnext",
   },

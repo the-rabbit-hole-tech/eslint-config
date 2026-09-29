@@ -1,0 +1,12 @@
+# Build output and generated files.
+lib/
+docs/
+coverage/
+package-lock.json
+
+# Written by the changelog action on every release; never edited by hand.
+CHANGELOG.md
+
+# Synced from the governance hub; formatting them here would drift from it.
+.github/
+.claude/

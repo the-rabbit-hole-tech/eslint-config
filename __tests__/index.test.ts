@@ -112,6 +112,68 @@ describe("createESLintConfig", () => {
     });
   });
 
+  describe("prettier is decoupled from ESLint", () => {
+    const allOptIns = [
+      "eslintA11y",
+      "eslintStorybook",
+      "eslintTesting",
+      "eslintTypedoc",
+    ] as const;
+
+    it("does not register eslint-plugin-prettier or its rule", () => {
+      for (const config of [
+        createESLintConfig(),
+        createESLintConfig({ enable: [...allOptIns] }),
+      ] as ConfigEntry[][]) {
+        expect(
+          config.some((entry) => entry.plugins && "prettier" in entry.plugins),
+        ).toBe(false);
+        expect(config.some((entry) => entry.rules?.["prettier/prettier"])).toBe(
+          false,
+        );
+      }
+    });
+
+    it("applies eslint-config-prettier after every other extend", () => {
+      for (const config of [
+        createESLintConfig(),
+        createESLintConfig({ enable: [...allOptIns] }),
+      ] as ConfigEntry[][]) {
+        // The last entry is the package's own rules block, which carries no
+        // layout rules; the extend right before it must be the one that
+        // switches layout rules off, so no plugin can turn them back on.
+        expect(config.at(-2)?.name).toContain("config-prettier");
+        expect(
+          config.filter((entry) => entry.name?.includes("config-prettier")),
+        ).toHaveLength(1);
+      }
+    });
+
+    it("still accepts eslintPrettier in disableExtends and prints one notice", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      const config = createESLintConfig({
+        disableExtends: ["eslintPrettier"],
+      }) as ConfigEntry[];
+
+      expect(includesPlugin(config, "unicorn")).toBe(true);
+      expect(includesPlugin(config, "typescript-eslint")).toBe(true);
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining(`"eslintPrettier"`),
+      );
+      expect(String(warn.mock.calls[0][0])).not.toContain("\n");
+    });
+
+    it("prints no notice when eslintPrettier is not named", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      createESLintConfig({ disableExtends: ["eslintUnicorn"] });
+
+      expect(warn).not.toHaveBeenCalled();
+    });
+  });
+
   describe("rules", () => {
     it("applies the bundled default rule when no user rules are provided", () => {
       const config = createESLintConfig() as ConfigEntry[];
