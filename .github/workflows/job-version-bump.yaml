@@ -56,11 +56,46 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
+      # A dry run writes nothing: it only reports the version the labels
+      # resolve to, so the next step can correct it before the draft exists.
+      - name: 🔍 Release Drafter (Resolve Version)
+        id: resolve
+        uses: release-drafter/release-drafter@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          dry-run: true
+
+      # release-drafter turns the `breaking` label into a major bump whatever
+      # the current version is, so a breaking change on 0.x would jump to
+      # 1.0.0. Below 1.0.0 a breaking change moves the minor number instead.
+      # This lives here rather than in release-drafter.yml because that file
+      # is overwritten by the hub governance sync.
+      - name: 🔢 Keep 0.x Breaking Changes on a Minor Bump
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RESOLVED: ${{ steps.resolve.outputs.resolved_version }}
+        run: |
+          version="$RESOLVED"
+          last="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name 2>/dev/null || true)"
+          last="${last#v}"
+          echo "Last published release: ${last:-none}; release-drafter resolved: ${RESOLVED:-none}"
+          if [ -n "$last" ] && [ -n "$RESOLVED" ]; then
+            IFS=. read -r last_major last_minor _ <<< "$last"
+            resolved_major="${RESOLVED%%.*}"
+            if [ "$last_major" = 0 ] && [ "$resolved_major" != 0 ]; then
+              version="0.$((last_minor + 1)).0"
+              echo "Below 1.0.0: holding the major bump ($RESOLVED) to a minor bump ($version)."
+            fi
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       - name: 📝 Release Drafter (Anticipate Version)
         id: drafter
         uses: release-drafter/release-drafter@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ steps.version.outputs.version }}
 
       - name: Detect releasable changes
         id: releasable
