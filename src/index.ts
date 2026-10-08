@@ -148,7 +148,7 @@ export const createESLintConfig = (options?: {
   for (const ruleName of Object.keys(userRules)) {
     if (Object.hasOwn(baseRules, ruleName)) {
       console.info(
-        `[@the-rabbit-hole/eslint-config] Rule "${ruleName}" overrides the bundled default.`,
+        `[@bugs5382/eslint-config] Rule "${ruleName}" overrides the bundled default.`,
       );
     }
   }
@@ -185,7 +185,7 @@ export const createESLintConfig = (options?: {
 
 /**
  * Default Config
- * @remarks Used for all 'the rabbit hole' projects.
+ * @remarks Used across Bugs5382 projects.
  * @since 1.0.0
  */
 export default createESLintConfig();

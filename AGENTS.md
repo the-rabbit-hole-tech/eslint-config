@@ -5,8 +5,8 @@ hook-enforced rules). Keep this file current when the build, layout, or public A
 
 ## What this is
 
-`@the-rabbit-hole/eslint-config` is the shared, flat-config ESLint preset used across the
-`@the-rabbit-hole` projects (and usable publicly). It ships a single factory, `createESLintConfig`,
+`@bugs5382/eslint-config` is the shared, flat-config ESLint preset used across Bugs5382 projects
+(and usable publicly). It ships a single factory, `createESLintConfig`,
 that composes a curated set of plugin configs and lets a consumer disable default-on extends, enable
 opt-in extends, and merge/override rules. It is published to npm as dual ESM/CJS with type
 declarations.
@@ -19,7 +19,7 @@ Extends split into two groups (see `baseExtendsMap` / `optInExtendsMap` in `src/
 
 ## Using eslint-config
 
-The public surface is the entry point `@the-rabbit-hole/eslint-config`:
+The public surface is the entry point `@bugs5382/eslint-config`:
 
 - `default` export — the ready-made config (all base extends on).
 - `createESLintConfig(options?)` — the factory. Options:

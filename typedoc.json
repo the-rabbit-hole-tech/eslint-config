@@ -7,9 +7,9 @@
   "githubPages": false,
   "plugin": ["@shipgirl/typedoc-plugin-versions"],
   "out": "./docs",
-  "name": "@the-rabbit-hole/eslint-config",
+  "name": "@bugs5382/eslint-config",
   "navigationLinks": {
-    "GitHub": "https://github.com/the-rabbit-hole-tech/eslint-config"
+    "GitHub": "https://github.com/Bugs5382/node-eslint-config"
   },
   "visibilityFilters": {
     "protected": true,
