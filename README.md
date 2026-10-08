@@ -1,17 +1,17 @@
-# ESLint Config – @the-rabbit-hole 🐇
+# ESLint Config 🧹
 
-> 🧹 A shared ESLint configuration used across all the rabbit hole projects.
+> 🪄 A shared ESLint configuration used across Bugs5382 projects.
 
-![npm version](https://img.shields.io/npm/v/@the-rabbit-hole/eslint-config?style=for-the-badge&logo=npm&label=version)
-![npm downloads](https://img.shields.io/npm/dm/@the-rabbit-hole/eslint-config?style=for-the-badge&logo=npm&label=downloads)
+![npm version](https://img.shields.io/npm/v/@bugs5382/eslint-config?style=for-the-badge&logo=npm&label=version)
+![npm downloads](https://img.shields.io/npm/dm/@bugs5382/eslint-config?style=for-the-badge&logo=npm&label=downloads)
 ![ESLint](https://img.shields.io/badge/ESLint-9.x%20%7C%2010.x-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 ## ✨ Overview
 
-This package provides a **shared ESLint configuration** used across all  
-[`@the-rabbit-hole`](https://github.com/the-rabbit-hole-tech) projects.  
+This package provides a **shared ESLint configuration** used across
+[`@Bugs5382`](https://github.com/Bugs5382) projects.
 
 It is designed to be:
 - 🛠 **Reusable** – a single config for all JS/TS projects
@@ -22,13 +22,29 @@ It is designed to be:
 
 ```bash
 # with npm
-npm install --save-dev eslint @the-rabbit-hole/eslint-config
+npm install --save-dev eslint @bugs5382/eslint-config
 
 # with yarn
-yarn add -D eslint @the-rabbit-hole/eslint-config
+yarn add -D eslint @bugs5382/eslint-config
 
 # with pnpm
-pnpm add -D eslint @the-rabbit-hole/eslint-config
+pnpm add -D eslint @bugs5382/eslint-config
+```
+
+### Moving from @the-rabbit-hole/eslint-config
+
+This package replaces `@the-rabbit-hole/eslint-config`, which is deprecated. Remove the old
+package and install this one — the public API (`createESLintConfig`, the default export, and
+`globalIgnoresArray`) is unchanged, so only the package name and import specifier need to update:
+
+```bash
+npm uninstall @the-rabbit-hole/eslint-config
+npm install --save-dev @bugs5382/eslint-config
+```
+
+```diff
+- import eslintConfig from "@the-rabbit-hole/eslint-config";
++ import eslintConfig from "@bugs5382/eslint-config";
 ```
 
 ## ⚙️ Usage
@@ -36,7 +52,7 @@ pnpm add -D eslint @the-rabbit-hole/eslint-config
 In your `eslint.config.js` (or `eslint.config.mjs`):
 
 ```js
-import eslintConfig from "@the-rabbit-hole/eslint-config";
+import eslintConfig from "@bugs5382/eslint-config";
 export default eslintConfig;
 ```
 
@@ -45,7 +61,7 @@ That’s it! 🚀
 In a CommonJS config (`eslint.config.cjs`), `require` works the same way:
 
 ```js
-const { createESLintConfig } = require("@the-rabbit-hole/eslint-config");
+const { createESLintConfig } = require("@bugs5382/eslint-config");
 module.exports = createESLintConfig();
 ```
 
@@ -56,7 +72,7 @@ Some bundled plugins ship as ES modules only, so CommonJS loading needs a Node.j
 Use the named `createESLintConfig` factory to disable bundled extends, add new rules, or override the package's defaults:
 
 ```js
-import { createESLintConfig } from "@the-rabbit-hole/eslint-config";
+import { createESLintConfig } from "@bugs5382/eslint-config";
 
 export default createESLintConfig({
   // Drop default-on extends you don't want
@@ -80,7 +96,7 @@ All options are independent — pass any combination, or none.
 If a key in `rules` matches a rule the package sets by default, an info line is printed when ESLint loads the config so the override is visible:
 
 ```
-[@the-rabbit-hole/eslint-config] Rule "react/react-in-jsx-scope" overrides the bundled default.
+[@bugs5382/eslint-config] Rule "react/react-in-jsx-scope" overrides the bundled default.
 ```
 
 Adding rules the package does not set is silent — no message.
@@ -99,7 +115,7 @@ These are **off by default** and only applied when named in `enable`. They targe
 * `eslintTypedoc` — [TypeDoc](https://typedoc.org)/TSDoc documentation quality ([eslint-plugin-typedoc](https://github.com/Nick2bad4u/eslint-plugin-typedoc)): doc-comment coverage on exported APIs (`typedoc/require-exported-doc-comment`) plus tag correctness (unknown/duplicate/empty tags, malformed inline links). Scoped to `**/*.{ts,tsx,mts,cts}`.
 
 ```js
-import { createESLintConfig } from "@the-rabbit-hole/eslint-config";
+import { createESLintConfig } from "@bugs5382/eslint-config";
 
 // A React component library that wants a11y, Storybook, and doc-coverage:
 export default createESLintConfig({
@@ -142,4 +158,4 @@ If you have suggestions, improvements, or run into issues, please open a PR or i
 This project is licensed under the **MIT License**.
 You’re free to use it in your own public or private projects.
 
-Made with ❤️ by [@the-rabbit-hole](https://github.com/the-rabbit-hole-tech)
+Made with ❤️ by [@Bugs5382](https://github.com/Bugs5382)

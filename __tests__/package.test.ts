@@ -84,7 +84,7 @@ type LoadSummary = {
   plugins: string[];
 };
 
-const PACKAGE_NAME = "@the-rabbit-hole/eslint-config";
+const PACKAGE_NAME = "@bugs5382/eslint-config";
 const OPT_IN_EXTENDS = [
   "eslintA11y",
   "eslintStorybook",
