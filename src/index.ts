@@ -24,8 +24,8 @@ import { Linter } from "eslint";
 import { defineConfig } from "eslint/config";
 
 import eslintA11y, { eslintA11yRegister } from "./eslintA11y";
+import eslintConfigPrettier from "./eslintConfigPrettier";
 import eslintPerfectionist from "./eslintPerfectionist";
-import eslintPrettier from "./eslintPretter";
 import eslintReact from "./eslintReact";
 import eslintStorybook from "./eslintStorybook";
 import eslintTesting, { eslintTestingRegister } from "./eslintTesting";
@@ -65,11 +65,32 @@ type ExtendFactory = () => Linter.Config | Linter.Config[];
 
 const baseExtendsMap = {
   eslintPerfectionist: (() => eslintPerfectionist) as ExtendFactory,
-  eslintPrettier: (() => eslintPrettier) as ExtendFactory,
   eslintReact: (() => eslintReact) as ExtendFactory,
   eslintTypescript: (() => eslintTypescript.recommended) as ExtendFactory,
   eslintUnicorn: (() => eslintUnicorn) as ExtendFactory,
 };
+
+/**
+ * Extend keys that no longer select anything but are still accepted for one
+ * release, so a consumer's `disableExtends` keeps compiling while it migrates.
+ * @remarks `eslintPrettier` ran Prettier as an ESLint rule. Formatting now
+ * runs as its own `prettier --check`, so there is nothing left to disable.
+ * @since 0.8.0
+ */
+const retiredExtends = {
+  eslintPrettier:
+    "Prettier no longer runs inside ESLint, so there is nothing to disable; remove it from disableExtends and run prettier --check instead.",
+} as const;
+
+type BaseExtendKey = keyof typeof baseExtendsMap;
+
+/**
+ * Keys accepted by `disableExtends`.
+ * @remarks Includes the retired keys in `retiredExtends`; naming one is
+ * a no-op that prints a notice.
+ * @since 0.8.0
+ */
+type DisableExtendKey = BaseExtendKey | keyof typeof retiredExtends;
 
 /**
  * Opt-in extends with string keys.
@@ -125,7 +146,8 @@ const baseRules: Linter.RulesRecord = {
 /**
  * Factory to create ESLint config
  * @since 1.0.0
- * @param options.disableExtends - Extend names (keys) to remove from base config
+ * @param options.disableExtends - Extend names (keys) to remove from base config.
+ *   `eslintPrettier` is still accepted but does nothing and prints a notice.
  * @param options.enable - Opt-in extend names (keys) whose rules to turn on:
  *   `eslintA11y`, `eslintStorybook`, `eslintTesting`, and `eslintTypedoc`.
  *   Rules are off unless named here. Note: the `eslintA11y` and `eslintTesting`
@@ -137,13 +159,21 @@ const baseRules: Linter.RulesRecord = {
  *   each override so the consumer is aware.
  */
 export const createESLintConfig = (options?: {
-  disableExtends?: (keyof typeof baseExtendsMap)[];
+  disableExtends?: DisableExtendKey[];
   enable?: (keyof typeof optInExtendsMap)[];
   rules?: Linter.RulesRecord;
 }) => {
   const disabled = options?.disableExtends ?? [];
   const enabled = options?.enable ?? [];
   const userRules = options?.rules ?? {};
+
+  for (const key of disabled) {
+    if (Object.hasOwn(retiredExtends, key)) {
+      console.warn(
+        `[@the-rabbit-hole/eslint-config] disableExtends "${key}" is ignored: ${retiredExtends[key as keyof typeof retiredExtends]}`,
+      );
+    }
+  }
 
   for (const ruleName of Object.keys(userRules)) {
     if (Object.hasOwn(baseRules, ruleName)) {
@@ -160,9 +190,7 @@ export const createESLintConfig = (options?: {
     {
       extends: [
         ...Object.entries(baseExtendsMap)
-          .filter(
-            ([key]) => !disabled.includes(key as keyof typeof baseExtendsMap),
-          )
+          .filter(([key]) => !disabled.includes(key as BaseExtendKey))
           .map(([, factory]) => factory()),
         ...Object.entries(optInExtendsMap).flatMap(([key, entry]) => {
           // Enabled -> the full plugin + recommended rules. Not enabled ->
@@ -174,6 +202,9 @@ export const createESLintConfig = (options?: {
           }
           return "register" in entry ? [entry.register()] : [];
         }),
+        // Last on purpose: it switches off the layout rules any extend above
+        // turns on, so ESLint never disagrees with Prettier.
+        eslintConfigPrettier,
       ],
       rules: {
         ...baseRules,
